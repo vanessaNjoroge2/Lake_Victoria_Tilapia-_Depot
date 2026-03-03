@@ -70,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-    <style>
         .fish-bg {
             background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
         }
@@ -215,8 +214,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </a>
                 </div>
 
-                <div class="text-center mt-6">
+                <div class="text-center mt-6 space-y-2">
                     <p class="text-gray-600">Already have an account? <a href="<?php echo BASE_URL; ?>/views/auth/login.php" class="text-cyan-600 hover:text-cyan-800 font-semibold">Login here</a></p>
+                    <p class="text-sm text-gray-500">Forgot your password? <a href="<?php echo BASE_URL; ?>/views/auth/forgot_password.php" class="text-cyan-600 hover:text-cyan-800 font-semibold">Reset it here</a></p>
                 </div>
             </form>
         </div>

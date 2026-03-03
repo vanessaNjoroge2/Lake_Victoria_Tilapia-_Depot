@@ -119,10 +119,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </button>
                 </form>
 
-                <div class="mt-6 text-center">
+                <div class="mt-6 text-center space-y-3">
                     <a href="<?php echo BASE_URL; ?>/views/auth/login.php"
-                       class="text-sm text-cyan-600 hover:text-cyan-800 font-semibold">
+                       class="block text-sm text-cyan-600 hover:text-cyan-800 font-semibold">
                         <i class="fas fa-arrow-left mr-1"></i>Back to Login
+                    </a>
+                    <a href="<?php echo BASE_URL; ?>/views/auth/register.php"
+                       class="block text-sm text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-user-plus mr-1"></i>Don't have an account? Create one
                     </a>
                 </div>
             <?php endif; ?>
