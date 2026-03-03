@@ -3,12 +3,6 @@
 /**
  * Login Page
  * Handles user authentication for all roles (Customer, Staff, Admin)
- * 
- * Features:
- * - Redirects logged-in users to their dashboard
- * - Shows logout success message
- * - Displays authentication errors
- * - Links to public landing page
  */
 
 require_once '../../config/config.php';
@@ -19,39 +13,48 @@ $authController = new AuthController();
 // Redirect already logged-in users to their appropriate dashboard
 $authController->redirectIfLoggedIn();
 
+// Generate CSRF token
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Initialize variables for messages
-$error = null;
+$error   = null;
 $success = null;
 
-// Check for logout success message
+// Flash messages
 if (isset($_SESSION['logout_success'])) {
     $success = $_SESSION['logout_success'];
     unset($_SESSION['logout_success']);
 }
-
-// Check for registration success message
 if (isset($_SESSION['registration_success'])) {
     $success = $_SESSION['registration_success'];
     unset($_SESSION['registration_success']);
 }
 
-// Check for authentication required error
+// Auth-required redirect message
 if (isset($_GET['error']) && $_GET['error'] === 'auth_required') {
-    $error = "Please login to access that page.";
+    $error = "Please log in to access that page.";
 }
 
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    if (empty($username) || empty($password)) {
-        $error = "Username and password are required!";
-    } elseif ($authController->login($username, $password)) {
-        // Login successful - use the postLoginRedirect method
-        $authController->postLoginRedirect();
+    // CSRF check
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+        $error = "Security token mismatch. Please refresh and try again.";
     } else {
-        $error = "Invalid username or password!";
+        $username = trim(strip_tags($_POST['username'] ?? ''));
+        $password = $_POST['password'] ?? '';
+
+        if (empty($username) || empty($password)) {
+            $error = "Username and password are required.";
+        } elseif ($authController->login($username, $password)) {
+            // Regenerate session ID after successful login (session fixation prevention)
+            session_regenerate_id(true);
+            $authController->postLoginRedirect();
+        } else {
+            $error = "Invalid username or password.";
+        }
     }
 }
 ?>
@@ -84,58 +87,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             opacity: 0.05;
         }
 
-        .input-field {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-
-        .input-field input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .input-field input:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-
-        .input-field input:focus+label,
-        .input-field input:valid+label {
-            top: -10px;
-            left: 10px;
-            font-size: 12px;
-            color: #3b82f6;
-            background: white;
-            padding: 0 5px;
-        }
-
-        .input-field label {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            color: #6b7280;
-            pointer-events: none;
-            transition: all 0.3s;
-        }
-
         .login-card {
             animation: slideUp 0.5s ease-out;
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -170,76 +128,139 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Right Side - Login Form -->
             <div class="login-card">
-                <form method="POST" class="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
+                <form method="POST" autocomplete="on" class="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
+
+                    <!-- CSRF token -->
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>" />
+
                     <div class="text-center mb-8">
                         <div class="inline-block bg-blue-100 p-4 rounded-full mb-4">
                             <i class="fas fa-fish text-blue-600 text-3xl"></i>
                         </div>
-                        <h2 class="text-3xl font-bold text-gray-800">Login Form</h2>
-                        <p class="text-gray-600 mt-2">Welcome back! Please login to your account</p>
+                        <h2 class="text-3xl font-bold text-gray-800">Welcome Back</h2>
+                        <p class="text-gray-500 mt-2 text-sm">Sign in to your account to continue</p>
                     </div>
 
-                    <?php if (isset($success)): ?>
-                        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded animate-pulse">
-                            <div class="flex items-center">
-                                <i class="fas fa-check-circle mr-2"></i>
+                    <?php if ($success): ?>
+                        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
                                 <span><?php echo htmlspecialchars($success); ?></span>
                             </div>
                         </div>
                     <?php endif; ?>
 
-                    <?php if (isset($error)): ?>
+                    <?php if ($error): ?>
                         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
-                            <div class="flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
                                 <span><?php echo htmlspecialchars($error); ?></span>
                             </div>
                         </div>
                     <?php endif; ?>
 
-                    <div class="input-field">
-                        <input type="text" name="username" required />
-                        <label>Enter username</label>
-                    </div>
-
-                    <div class="input-field">
-                        <input type="password" name="password" required />
-                        <label>Enter password</label>
-                    </div>
-
-                    <div class="forget flex justify-between items-center mb-6">
-                        <label for="Save-login" class="flex items-center cursor-pointer">
-                            <input type="checkbox" id="Save-login" class="mr-2 w-4 h-4 text-blue-600" />
-                            <p class="text-sm text-gray-600">Save login information</p>
+                    <!-- Username -->
+                    <div class="mb-5">
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                            Username
                         </label>
-                        <a href="<?php echo BASE_URL; ?>/views/auth/forgot_password.php" class="text-sm text-blue-600 hover:text-blue-800">Forgot password?</a>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 pointer-events-none">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                required
+                                autocomplete="username"
+                                placeholder="Enter your username"
+                                value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
+                                class="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition"
+                            />
+                        </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition duration-300 transform hover:scale-105 shadow-lg">
+                    <!-- Password -->
+                    <div class="mb-5">
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 pointer-events-none">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                required
+                                autocomplete="current-password"
+                                placeholder="Enter your password"
+                                class="w-full pl-11 pr-12 py-3 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition"
+                            />
+                            <button type="button"
+                                onclick="togglePassword()"
+                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
+                                aria-label="Toggle password visibility">
+                                <i id="toggle-icon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Forgot password -->
+                    <div class="flex justify-end mb-6">
+                        <a href="<?php echo BASE_URL; ?>/views/auth/forgot_password.php"
+                           class="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                            Forgot password?
+                        </a>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit"
+                        class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition duration-300 transform hover:scale-105 shadow-lg">
                         <i class="fas fa-sign-in-alt mr-2"></i>Log In
                     </button>
-                    <div class="Create-account text-center mt-6 px-8 pb-6">
-                        <p class="text-gray-600">Don't have an account? <a href="<?php echo BASE_URL; ?>/views/auth/register.php" class="text-blue-600 hover:text-blue-800 font-semibold underline">Create Account</a></p>
-                    </div>
 
-                    <!-- Demo Accounts -->
-                    <div class="mt-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-blue-100">
-                        <p class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-info-circle text-blue-600 mr-2"></i>Demo Accounts:
-                        </p>
-
-                        <div class="text-xs text-gray-600 space-y-1 ml-6">
-                            <p><strong>Admin:</strong> admin / password</p>
-                            <p><strong>Staff:</strong> staff1 / password</p>
-                            <p><strong>Customer:</strong> customer1 / password</p>
+                    <!-- Divider -->
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-200"></div>
                         </div>
-
+                        <div class="relative flex justify-center text-xs text-gray-400 bg-white px-3">OR</div>
                     </div>
+
+                    <!-- Create account -->
+                    <a href="<?php echo BASE_URL; ?>/views/auth/register.php"
+                       class="block w-full text-center border-2 border-blue-600 text-blue-600 py-3 rounded-lg font-semibold hover:bg-blue-50 transition duration-300">
+                        <i class="fas fa-user-plus mr-2"></i>Create Account
+                    </a>
+
+                    <!-- Back to home -->
+                    <div class="text-center mt-5">
+                        <a href="<?php echo BASE_URL; ?>/landing.php"
+                           class="text-sm text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-arrow-left mr-1"></i>Back to Home
+                        </a>
+                    </div>
+
                 </form>
-                <!-- Create Account Link - Moved outside form for proper navigation -->
             </div>
         </div>
     </div>
+    <script>
+        function togglePassword() {
+            const field = document.getElementById('password');
+            const icon  = document.getElementById('toggle-icon');
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+    </script>
 </body>
 
 </html>
