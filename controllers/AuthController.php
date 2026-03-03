@@ -32,28 +32,33 @@ class AuthController
 
     public function register($data)
     {
-        // Check for duplicate username before attempting INSERT
-        if ($this->user->usernameExists($data['username'])) {
-            return "That username is already taken. Please choose a different one.";
-        }
+        try {
+            // Check for duplicate username before attempting INSERT
+            if ($this->user->usernameExists($data['username'])) {
+                return "That username is already taken. Please choose a different one.";
+            }
 
-        // Check for duplicate email
-        if ($this->user->emailExists($data['email'])) {
-            return "An account with that email address already exists. Try logging in instead.";
-        }
+            // Check for duplicate email
+            if ($this->user->emailExists($data['email'])) {
+                return "An account with that email address already exists. Try logging in instead.";
+            }
 
-        $this->user->username = $data['username'];
-        $this->user->email    = $data['email'];
-        $this->user->password = $data['password'];
-        $this->user->full_name = $data['full_name'];
-        $this->user->phone    = $data['phone'];
-        $this->user->address  = $data['address'];
-        $this->user->role     = 'customer';
+            $this->user->username  = $data['username'];
+            $this->user->email     = $data['email'];
+            $this->user->password  = $data['password'];
+            $this->user->full_name = $data['full_name'];
+            $this->user->phone     = $data['phone'];
+            $this->user->address   = $data['address'];
+            $this->user->role      = 'customer';
 
-        if ($this->user->register()) {
-            return true;
+            if ($this->user->register()) {
+                return true;
+            }
+            return "Registration failed. Please try again.";
+        } catch (\Throwable $e) {
+            error_log('Register error: ' . $e->getMessage());
+            return "Registration failed. Please check your connection and try again.";
         }
-        return "Registration failed. Please try again.";
     }
 
     /**

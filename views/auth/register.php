@@ -70,82 +70,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+    <style>
         .fish-bg {
             background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-            position: relative;
-            overflow: hidden;
         }
-
-        .fish-bg::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url('<?php echo BASE_URL; ?>/uploads/tilapia_in_water.jpg');
-            background-size: 100px;
-            opacity: 0.05;
-        }
-
-        .input-field {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .input-field input,
-        .input-field textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s;
-            background: white;
-        }
-
-        .input-field input:focus,
-        .input-field textarea:focus {
-            outline: none;
-            border-color: #06b6d4;
-            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
-        }
-
-        .input-field input:focus+label,
-        .input-field input:valid+label,
-        .input-field textarea:focus+label,
-        .input-field textarea:valid+label {
-            top: -10px;
-            left: 10px;
-            font-size: 12px;
-            color: #06b6d4;
-            background: white;
-            padding: 0 5px;
-        }
-
-        .input-field label {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            color: #6b7280;
-            pointer-events: none;
-            transition: all 0.3s;
-        }
-
         .register-card {
             animation: slideUp 0.5s ease-out;
         }
-
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -171,41 +105,94 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php endif; ?>
 
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div class="input-field">
-                        <input type="text" name="full_name" required value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>" />
-                        <label>Full Name *</label>
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+
+                    <!-- Full Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" for="full_name">Full Name <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none"><i class="fas fa-user text-sm"></i></span>
+                            <input type="text" id="full_name" name="full_name" required autocomplete="name"
+                                placeholder="Your full name"
+                                value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>"
+                                class="w-full pl-9 pr-3 py-2.5 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-cyan-500 transition" />
+                        </div>
                     </div>
 
-                    <div class="input-field">
-                        <input type="text" name="username" required value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" />
-                        <label>Username *</label>
+                    <!-- Username -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" for="reg_username">Username <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none"><i class="fas fa-at text-sm"></i></span>
+                            <input type="text" id="reg_username" name="username" required autocomplete="username"
+                                placeholder="Choose a username"
+                                value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
+                                class="w-full pl-9 pr-3 py-2.5 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-cyan-500 transition" />
+                        </div>
                     </div>
 
-                    <div class="input-field">
-                        <input type="email" name="email" required value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" />
-                        <label>Email Address *</label>
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" for="email">Email Address <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none"><i class="fas fa-envelope text-sm"></i></span>
+                            <input type="email" id="email" name="email" required autocomplete="email"
+                                placeholder="you@example.com"
+                                value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
+                                class="w-full pl-9 pr-3 py-2.5 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-cyan-500 transition" />
+                        </div>
                     </div>
 
-                    <div class="input-field">
-                        <input type="tel" name="phone" required value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>" />
-                        <label>Phone Number *</label>
+                    <!-- Phone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" for="phone">Phone Number <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none"><i class="fas fa-phone text-sm"></i></span>
+                            <input type="tel" id="phone" name="phone" required autocomplete="tel"
+                                placeholder="07XXXXXXXX"
+                                value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>"
+                                class="w-full pl-9 pr-3 py-2.5 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-cyan-500 transition" />
+                        </div>
                     </div>
 
-                    <div class="input-field">
-                        <input type="password" name="password" required />
-                        <label>Password * (min 6 characters)</label>
+                    <!-- Password -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" for="reg_password">Password <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none"><i class="fas fa-lock text-sm"></i></span>
+                            <input type="password" id="reg_password" name="password" required autocomplete="new-password"
+                                minlength="6" placeholder="Min 6 characters"
+                                class="w-full pl-9 pr-10 py-2.5 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-cyan-500 transition" />
+                            <button type="button" onclick="togglePwd('reg_password','icon1')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                <i id="icon1" class="fas fa-eye text-sm"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="input-field">
-                        <input type="password" name="confirm_password" required />
-                        <label>Confirm Password *</label>
+                    <!-- Confirm Password -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" for="confirm_password">Confirm Password <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none"><i class="fas fa-lock text-sm"></i></span>
+                            <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password"
+                                placeholder="Re-enter password"
+                                class="w-full pl-9 pr-10 py-2.5 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-cyan-500 transition" />
+                            <button type="button" onclick="togglePwd('confirm_password','icon2')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                <i id="icon2" class="fas fa-eye text-sm"></i>
+                            </button>
+                        </div>
                     </div>
+
                 </div>
 
-                <div class="input-field">
-                    <textarea name="address" rows="3"><?php echo htmlspecialchars($_POST['address'] ?? ''); ?></textarea>
-                    <label>Delivery Address (Optional)</label>
+                <!-- Address -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="address">Delivery Address <span class="text-gray-400">(Optional)</span></label>
+                    <div class="relative">
+                        <span class="absolute top-3 left-3 text-gray-400 pointer-events-none"><i class="fas fa-map-marker-alt text-sm"></i></span>
+                        <textarea id="address" name="address" rows="2" placeholder="Street, area, city..."
+                            class="w-full pl-9 pr-3 py-2.5 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-cyan-500 transition resize-none"><?php echo htmlspecialchars($_POST['address'] ?? ''); ?></textarea>
+                    </div>
                 </div>
 
                 <div class="mb-6 p-4 bg-cyan-50 rounded-lg border border-cyan-200">
@@ -234,6 +221,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
         </div>
     </div>
+    <script>
+        function togglePwd(fieldId, iconId) {
+            const f = document.getElementById(fieldId);
+            const i = document.getElementById(iconId);
+            if (f.type === 'password') { f.type = 'text'; i.classList.replace('fa-eye','fa-eye-slash'); }
+            else { f.type = 'password'; i.classList.replace('fa-eye-slash','fa-eye'); }
+        }
+    </script>
 </body>
-
 </html>
