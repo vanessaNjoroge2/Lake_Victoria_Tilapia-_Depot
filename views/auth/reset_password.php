@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Reset Password Page
  * Validates the reset token from the URL and allows the user to set a new password.
@@ -46,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
+
 <body class="fish-bg min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md">
         <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
@@ -80,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php if (str_contains($error, 'invalid or has expired')): ?>
                         <div class="mt-3">
                             <a href="<?php echo BASE_URL; ?>/views/auth/forgot_password.php"
-                               class="text-sm underline text-red-700 hover:text-red-900">
+                                class="text-sm underline text-red-700 hover:text-red-900">
                                 Request a new reset link
                             </a>
                         </div>
@@ -106,8 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             required
                             minlength="6"
                             placeholder="Minimum 6 characters"
-                            class="w-full pl-11 pr-12 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-cyan-500 transition text-sm"
-                        />
+                            class="w-full pl-11 pr-12 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-cyan-500 transition text-sm" />
                         <button type="button"
                             onclick="togglePassword('new_password', this)"
                             class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600">
@@ -130,8 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             name="confirm_password"
                             required
                             placeholder="Re-enter your new password"
-                            class="w-full pl-11 pr-12 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-cyan-500 transition text-sm"
-                        />
+                            class="w-full pl-11 pr-12 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-cyan-500 transition text-sm" />
                         <button type="button"
                             onclick="togglePassword('confirm_password', this)"
                             class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600">
@@ -148,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="mt-6 text-center">
                 <a href="<?php echo BASE_URL; ?>/views/auth/login.php"
-                   class="text-sm text-cyan-600 hover:text-cyan-800 font-semibold">
+                    class="text-sm text-cyan-600 hover:text-cyan-800 font-semibold">
                     <i class="fas fa-arrow-left mr-1"></i>Back to Login
                 </a>
             </div>
@@ -158,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script>
         function togglePassword(fieldId, btn) {
             const field = document.getElementById(fieldId);
-            const icon  = btn.querySelector('i');
+            const icon = btn.querySelector('i');
             if (field.type === 'password') {
                 field.type = 'text';
                 icon.classList.replace('fa-eye', 'fa-eye-slash');
@@ -169,4 +170,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </script>
 </body>
+
 </html>

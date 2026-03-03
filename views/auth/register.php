@@ -73,12 +73,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .fish-bg {
             background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
         }
+
         .register-card {
             animation: slideUp 0.5s ease-out;
         }
+
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -225,9 +234,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         function togglePwd(fieldId, iconId) {
             const f = document.getElementById(fieldId);
             const i = document.getElementById(iconId);
-            if (f.type === 'password') { f.type = 'text'; i.classList.replace('fa-eye','fa-eye-slash'); }
-            else { f.type = 'password'; i.classList.replace('fa-eye-slash','fa-eye'); }
+            if (f.type === 'password') {
+                f.type = 'text';
+                i.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                f.type = 'password';
+                i.classList.replace('fa-eye-slash', 'fa-eye');
+            }
         }
     </script>
 </body>
+
 </html>

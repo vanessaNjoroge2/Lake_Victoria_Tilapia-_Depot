@@ -60,206 +60,403 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - <?php echo SITE_NAME; ?></title>
+    <title>Login — <?php echo SITE_NAME; ?></title>
+    <meta name="description" content="Sign in to Lake Victoria Tilapia Depot to order fresh tilapia fish.">
+
+    <!-- Tailwind CSS, Icons & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        .fish-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        * { font-family: 'Poppins', sans-serif; }
+
+        /* Full-page gradient background */
+        .page-bg {
+            background: linear-gradient(135deg, #0e7490 0%, #0891b2 40%, #06b6d4 70%, #0284c7 100%);
+            min-height: 100vh;
+        }
+
+        /* Decorative animated blobs */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.18;
+            animation: blobFloat 8s ease-in-out infinite;
+        }
+        .blob-1 { width: 420px; height: 420px; background: #fde68a; top: -120px; left: -100px; animation-delay: 0s; }
+        .blob-2 { width: 320px; height: 320px; background: #a5f3fc; bottom: -80px; right: -60px; animation-delay: 3s; }
+        .blob-3 { width: 200px; height: 200px; background: #fff; top: 40%; left: 30%; animation-delay: 5s; }
+
+        @keyframes blobFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50%       { transform: translateY(-30px) scale(1.05); }
+        }
+
+        /* Card entrance animation */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .login-card { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+        /* Left panel fish float */
+        @keyframes fishFloat {
+            0%, 100% { transform: translateY(0px) rotate(-2deg); }
+            50%       { transform: translateY(-18px) rotate(2deg); }
+        }
+        .fish-float { animation: fishFloat 5s ease-in-out infinite; }
+
+        /* Input focus ring */
+        .input-field {
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-field:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 4px rgba(6,182,212,0.15);
+            outline: none;
+        }
+        .input-field.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239,68,68,0.1);
+        }
+
+        /* Submit button shine */
+        .btn-login {
+            background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
-
-        .fish-bg::before {
+        .btn-login::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url('<?php echo BASE_URL; ?>/uploads/tilapia_in_water.jpg');
-            background-size: 100px;
-            opacity: 0.05;
+            top: -50%; left: -60%;
+            width: 40%; height: 200%;
+            background: rgba(255,255,255,0.18);
+            transform: skewX(-20deg);
+            transition: left 0.5s ease;
+        }
+        .btn-login:hover::after { left: 130%; }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(6,182,212,0.45);
+        }
+        .btn-login:active { transform: translateY(0); }
+
+        /* Divider */
+        .divider span {
+            background: white;
+            padding: 0 12px;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
         }
 
-        .login-card {
-            animation: slideUp 0.5s ease-out;
+        /* Stat badge */
+        .stat-badge {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.25);
+            transition: background 0.2s;
         }
+        .stat-badge:hover { background: rgba(255,255,255,0.22); }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f0f9ff; }
+        ::-webkit-scrollbar-thumb { background: #06b6d4; border-radius: 4px; }
     </style>
 </head>
 
-<body class="fish-bg min-h-screen flex items-center justify-center p-4">
-    <div class="container max-w-6xl mx-auto">
-        <div class="grid md:grid-cols-2 gap-8 items-center">
-            <!-- Left Side - Fish Image/Branding -->
-            <div class="hidden md:block text-center">
-                <div class="bg-white/10 backdrop-blur-sm rounded-3xl p-8">
+<body class="page-bg flex items-center justify-center p-4 relative overflow-hidden">
+
+    <!-- Decorative blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <!-- ───────────────────────── Main Card ───────────────────────── -->
+    <div class="login-card relative z-10 w-full max-w-5xl">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[600px]">
+
+            <!-- ══════════ LEFT PANEL — Branding ══════════ -->
+            <div class="hidden lg:flex lg:w-5/12 flex-col items-center justify-between p-10
+                        bg-gradient-to-br from-cyan-600 via-cyan-500 to-blue-600 text-white relative overflow-hidden">
+
+                <!-- Decorative wave at bottom -->
+                <svg class="absolute bottom-0 left-0 w-full opacity-20" viewBox="0 0 400 120" preserveAspectRatio="none">
+                    <path d="M0,60 C80,120 160,0 240,60 C320,120 380,30 400,60 L400,120 L0,120 Z" fill="white"/>
+                </svg>
+
+                <!-- Logo / site name -->
+                <div class="text-center w-full">
+                    <a href="<?php echo BASE_URL; ?>/landing.php" class="inline-flex items-center gap-3 mb-6 group">
+                        <img src="<?php echo BASE_URL; ?>/uploads/fresh_tilapia_logo.jpg"
+                             alt="Logo"
+                             class="w-14 h-14 rounded-full object-cover shadow-lg border-2 border-white/40
+                                    group-hover:scale-110 transition">
+                        <div class="text-left">
+                            <div class="text-xl font-bold leading-tight">Lake Victoria</div>
+                            <div class="text-sm text-cyan-100 font-medium">Tilapia Depot</div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Hero image -->
+                <div class="fish-float my-4">
                     <img src="<?php echo BASE_URL; ?>/uploads/fresh_tilapia.jpg"
-                        alt="Fresh Tilapia"
-                        class="w-64 h-64 object-cover rounded-full mx-auto mb-6 border-4 border-white/30 shadow-2xl animate-pulse">
-                    <h1 class="text-4xl font-bold text-white mb-4">Lake Victoria<br />Tilapia Depot</h1>
-                    <p class="text-white/90 text-lg">Fresh from the lake to your plate</p>
-                    <div class="mt-8 flex justify-center space-x-4">
-                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
-                            <i class="fas fa-fish text-white text-3xl mb-2"></i>
-                            <p class="text-white text-sm">Fresh Daily</p>
+                         alt="Fresh Tilapia"
+                         class="w-56 h-56 object-cover rounded-full border-4 border-white/30 shadow-2xl mx-auto">
+                </div>
+
+                <!-- Tagline -->
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold mb-2 leading-tight">
+                        Fresh from<br><span class="text-yellow-300">Lake Victoria</span>
+                    </h2>
+                    <p class="text-cyan-100 text-sm mb-8">Farm to table — same day freshness guaranteed.</p>
+
+                    <!-- Stats row -->
+                    <div class="flex justify-center gap-4">
+                        <div class="stat-badge rounded-2xl px-4 py-3 text-center">
+                            <div class="text-lg font-bold text-yellow-300">1000+</div>
+                            <div class="text-xs text-cyan-100">Customers</div>
                         </div>
-                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
-                            <i class="fas fa-truck text-white text-3xl mb-2"></i>
-                            <p class="text-white text-sm">Fast Delivery</p>
+                        <div class="stat-badge rounded-2xl px-4 py-3 text-center">
+                            <div class="text-lg font-bold text-yellow-300">500kg</div>
+                            <div class="text-xs text-cyan-100">Daily Fresh</div>
                         </div>
-                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
-                            <i class="fas fa-star text-white text-3xl mb-2"></i>
-                            <p class="text-white text-sm">Premium Quality</p>
+                        <div class="stat-badge rounded-2xl px-4 py-3 text-center">
+                            <div class="text-lg font-bold text-yellow-300">24/7</div>
+                            <div class="text-xs text-cyan-100">Support</div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </div><!-- /LEFT PANEL -->
 
-            <!-- Right Side - Login Form -->
-            <div class="login-card">
-                <form method="POST" autocomplete="on" class="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
+            <!-- ══════════ RIGHT PANEL — Login Form ══════════ -->
+            <div class="flex-1 flex flex-col justify-center p-8 sm:p-12">
 
-                    <!-- CSRF token -->
-                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>" />
-
-                    <div class="text-center mb-8">
-                        <div class="inline-block bg-blue-100 p-4 rounded-full mb-4">
-                            <i class="fas fa-fish text-blue-600 text-3xl"></i>
-                        </div>
-                        <h2 class="text-3xl font-bold text-gray-800">Welcome Back</h2>
-                        <p class="text-gray-500 mt-2 text-sm">Sign in to your account to continue</p>
+                <!-- Mobile logo (visible only on small screens) -->
+                <div class="flex lg:hidden items-center gap-3 mb-8">
+                    <img src="<?php echo BASE_URL; ?>/uploads/fresh_tilapia_logo.jpg"
+                         alt="Logo" class="w-10 h-10 rounded-full object-cover shadow">
+                    <div>
+                        <div class="font-bold text-cyan-600 leading-tight">Lake Victoria</div>
+                        <div class="text-xs text-gray-500">Tilapia Depot</div>
                     </div>
+                </div>
 
-                    <?php if ($success): ?>
-                        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-check-circle"></i>
-                                <span><?php echo htmlspecialchars($success); ?></span>
-                            </div>
-                        </div>
-                    <?php endif; ?>
+                <!-- Heading -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-1">Welcome back&nbsp;<span class="wave-hand">👋</span></h1>
+                    <p class="text-gray-500 text-sm">Sign in to continue to your account.</p>
+                </div>
 
-                    <?php if ($error): ?>
-                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                <span><?php echo htmlspecialchars($error); ?></span>
-                            </div>
-                        </div>
-                    <?php endif; ?>
+                <!-- ── Flash messages ── -->
+                <?php if ($success): ?>
+                    <div id="msg-success"
+                         class="flex items-start gap-3 bg-emerald-50 border border-emerald-300 text-emerald-800
+                                rounded-xl px-4 py-3 mb-6 text-sm shadow-sm">
+                        <i class="fas fa-check-circle text-emerald-500 mt-0.5 flex-shrink-0"></i>
+                        <span><?php echo htmlspecialchars($success); ?></span>
+                        <button type="button" onclick="this.parentElement.remove()"
+                                class="ml-auto text-emerald-400 hover:text-emerald-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                <?php endif; ?>
 
-                    <!-- Username -->
-                    <div class="mb-5">
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                <?php if ($error): ?>
+                    <div id="msg-error"
+                         class="flex items-start gap-3 bg-red-50 border border-red-300 text-red-800
+                                rounded-xl px-4 py-3 mb-6 text-sm shadow-sm">
+                        <i class="fas fa-exclamation-circle text-red-500 mt-0.5 flex-shrink-0"></i>
+                        <span><?php echo htmlspecialchars($error); ?></span>
+                        <button type="button" onclick="this.parentElement.remove()"
+                                class="ml-auto text-red-400 hover:text-red-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                <?php endif; ?>
+
+                <!-- ── Login Form ── -->
+                <form method="POST" autocomplete="on" novalidate id="loginForm" class="space-y-5">
+
+                    <!-- CSRF -->
+                    <input type="hidden" name="csrf_token"
+                           value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+
+                    <!-- Username field -->
+                    <div>
+                        <label for="username" class="block text-sm font-semibold text-gray-700 mb-1.5">
                             Username
                         </label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 pointer-events-none">
-                                <i class="fas fa-user"></i>
+                                <i class="fas fa-user text-sm"></i>
                             </span>
-                            <input
-                                type="text"
-                                id="username"
-                                name="username"
-                                required
-                                autocomplete="username"
-                                placeholder="Enter your username"
-                                value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
-                                class="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition"
-                            />
+                            <input type="text"
+                                   id="username"
+                                   name="username"
+                                   required
+                                   autocomplete="username"
+                                   placeholder="Your username"
+                                   value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
+                                   class="input-field w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl
+                                          text-sm text-gray-800 placeholder-gray-400 bg-gray-50
+                                          focus:bg-white <?php echo ($error && empty($_POST['username'] ?? '')) ? 'error' : ''; ?>">
                         </div>
+                        <p id="username-err" class="hidden mt-1 text-xs text-red-500">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>Please enter your username.
+                        </p>
                     </div>
 
-                    <!-- Password -->
-                    <div class="mb-5">
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                    <!-- Password field -->
+                    <div>
+                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-1.5">
                             Password
                         </label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 pointer-events-none">
-                                <i class="fas fa-lock"></i>
+                                <i class="fas fa-lock text-sm"></i>
                             </span>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                required
-                                autocomplete="current-password"
-                                placeholder="Enter your password"
-                                class="w-full pl-11 pr-12 py-3 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition"
-                            />
+                            <input type="password"
+                                   id="password"
+                                   name="password"
+                                   required
+                                   autocomplete="current-password"
+                                   placeholder="Your password"
+                                   class="input-field w-full pl-10 pr-12 py-3 border-2 border-gray-200 rounded-xl
+                                          text-sm text-gray-800 placeholder-gray-400 bg-gray-50 focus:bg-white">
                             <button type="button"
-                                onclick="togglePassword()"
-                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
-                                aria-label="Toggle password visibility">
-                                <i id="toggle-icon" class="fas fa-eye"></i>
+                                    id="togglePwd"
+                                    aria-label="Toggle password visibility"
+                                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400
+                                           hover:text-cyan-600 transition">
+                                <i id="toggle-icon" class="fas fa-eye text-sm"></i>
                             </button>
                         </div>
+                        <p id="password-err" class="hidden mt-1 text-xs text-red-500">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>Please enter your password.
+                        </p>
                     </div>
 
-                    <!-- Forgot password -->
-                    <div class="flex justify-end mb-6">
+                    <!-- Forgot password link -->
+                    <div class="flex justify-end -mt-2">
                         <a href="<?php echo BASE_URL; ?>/views/auth/forgot_password.php"
-                           class="text-sm text-blue-600 hover:text-blue-800 hover:underline">
-                            Forgot password?
+                           class="text-xs font-medium text-cyan-600 hover:text-cyan-800 hover:underline transition">
+                            <i class="fas fa-key mr-1"></i>Forgot password?
                         </a>
                     </div>
 
-                    <!-- Submit -->
-                    <button type="submit"
-                        class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition duration-300 transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-sign-in-alt mr-2"></i>Log In
+                    <!-- Submit button -->
+                    <button type="submit" id="submitBtn"
+                            class="btn-login w-full text-white py-3.5 rounded-xl font-semibold text-base
+                                   shadow-lg flex items-center justify-center gap-2">
+                        <span id="btn-text"><i class="fas fa-sign-in-alt"></i>&nbsp; Sign In</span>
+                        <span id="btn-spinner" class="hidden">
+                            <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Signing in…
+                        </span>
                     </button>
 
                     <!-- Divider -->
-                    <div class="relative my-6">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-200"></div>
-                        </div>
-                        <div class="relative flex justify-center text-xs text-gray-400 bg-white px-3">OR</div>
+                    <div class="divider flex items-center my-1">
+                        <div class="flex-1 border-t border-gray-200"></div>
+                        <span>or</span>
+                        <div class="flex-1 border-t border-gray-200"></div>
                     </div>
 
                     <!-- Create account -->
                     <a href="<?php echo BASE_URL; ?>/views/auth/register.php"
-                       class="block w-full text-center border-2 border-blue-600 text-blue-600 py-3 rounded-lg font-semibold hover:bg-blue-50 transition duration-300">
-                        <i class="fas fa-user-plus mr-2"></i>Create Account
+                       class="block w-full text-center border-2 border-cyan-500 text-cyan-600 py-3 rounded-xl
+                              font-semibold text-sm hover:bg-cyan-50 hover:border-cyan-600 transition">
+                        <i class="fas fa-user-plus mr-2"></i>Create a new account
                     </a>
 
-                    <!-- Back to home -->
-                    <div class="text-center mt-5">
-                        <a href="<?php echo BASE_URL; ?>/landing.php"
-                           class="text-sm text-gray-500 hover:text-gray-700">
-                            <i class="fas fa-arrow-left mr-1"></i>Back to Home
-                        </a>
-                    </div>
-
                 </form>
-            </div>
-        </div>
-    </div>
+
+                <!-- Back to home -->
+                <div class="mt-8 text-center">
+                    <a href="<?php echo BASE_URL; ?>/landing.php"
+                       class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-cyan-600 transition">
+                        <i class="fas fa-arrow-left text-xs"></i> Back to Home
+                    </a>
+                </div>
+
+            </div><!-- /RIGHT PANEL -->
+
+        </div><!-- /card inner -->
+    </div><!-- /card wrapper -->
+
+    <!-- ───────────────────────── Scripts ───────────────────────── -->
     <script>
-        function togglePassword() {
-            const field = document.getElementById('password');
-            const icon  = document.getElementById('toggle-icon');
-            if (field.type === 'password') {
-                field.type = 'text';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                field.type = 'password';
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+        /* ── Password visibility toggle ── */
+        const toggleBtn = document.getElementById('togglePwd');
+        const pwdField  = document.getElementById('password');
+        const toggleIco = document.getElementById('toggle-icon');
+
+        toggleBtn.addEventListener('click', () => {
+            const isHidden = pwdField.type === 'password';
+            pwdField.type  = isHidden ? 'text' : 'password';
+            toggleIco.classList.toggle('fa-eye',       !isHidden);
+            toggleIco.classList.toggle('fa-eye-slash',  isHidden);
+        });
+
+        /* ── Client-side validation ── */
+        const form        = document.getElementById('loginForm');
+        const usernameEl  = document.getElementById('username');
+        const passwordEl  = document.getElementById('password');
+        const usernameErr = document.getElementById('username-err');
+        const passwordErr = document.getElementById('password-err');
+        const submitBtn   = document.getElementById('submitBtn');
+        const btnText     = document.getElementById('btn-text');
+        const btnSpinner  = document.getElementById('btn-spinner');
+
+        function validateField(field, errEl) {
+            const empty = field.value.trim() === '';
+            field.classList.toggle('error', empty);
+            errEl.classList.toggle('hidden', !empty);
+            return !empty;
         }
+
+        usernameEl.addEventListener('input', () => validateField(usernameEl, usernameErr));
+        passwordEl.addEventListener('input', () => validateField(passwordEl, passwordErr));
+
+        form.addEventListener('submit', (e) => {
+            const okUser = validateField(usernameEl, usernameErr);
+            const okPass = validateField(passwordEl, passwordErr);
+
+            if (!okUser || !okPass) {
+                e.preventDefault();
+                return;
+            }
+
+            /* Show spinner while form submits */
+            submitBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnSpinner.classList.remove('hidden');
+        });
+
+        /* ── Auto-dismiss flash messages after 6 seconds ── */
+        ['msg-success', 'msg-error'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) setTimeout(() => el.remove(), 6000);
+        });
     </script>
 </body>
 

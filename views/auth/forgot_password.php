@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Forgot Password Page
  * Accepts an email, generates a reset token, and either sends an email or
@@ -28,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
+
 <body class="fish-bg min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md">
         <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-10">
@@ -74,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <i class="fas fa-tools mr-1"></i>Dev Mode — Reset Link:
                             </p>
                             <a href="<?php echo htmlspecialchars($result['reset_url']); ?>"
-                               class="text-xs text-blue-600 underline break-all">
+                                class="text-xs text-blue-600 underline break-all">
                                 <?php echo htmlspecialchars($result['reset_url']); ?>
                             </a>
                             <p class="text-xs text-yellow-600 mt-2">
@@ -85,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <a href="<?php echo BASE_URL; ?>/views/auth/login.php"
-                   class="block w-full text-center bg-cyan-600 text-white py-3 rounded-lg font-semibold hover:bg-cyan-700 transition">
+                    class="block w-full text-center bg-cyan-600 text-white py-3 rounded-lg font-semibold hover:bg-cyan-700 transition">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Login
                 </a>
 
@@ -108,8 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 autocomplete="email"
                                 value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
                                 placeholder="you@example.com"
-                                class="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-cyan-500 transition text-sm"
-                            />
+                                class="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-cyan-500 transition text-sm" />
                         </div>
                     </div>
 
@@ -121,11 +123,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="mt-6 text-center space-y-3">
                     <a href="<?php echo BASE_URL; ?>/views/auth/login.php"
-                       class="block text-sm text-cyan-600 hover:text-cyan-800 font-semibold">
+                        class="block text-sm text-cyan-600 hover:text-cyan-800 font-semibold">
                         <i class="fas fa-arrow-left mr-1"></i>Back to Login
                     </a>
                     <a href="<?php echo BASE_URL; ?>/views/auth/register.php"
-                       class="block text-sm text-gray-500 hover:text-gray-700">
+                        class="block text-sm text-gray-500 hover:text-gray-700">
                         <i class="fas fa-user-plus mr-1"></i>Don't have an account? Create one
                     </a>
                 </div>
@@ -134,4 +136,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </body>
+
 </html>
