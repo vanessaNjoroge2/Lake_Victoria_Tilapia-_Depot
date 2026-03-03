@@ -212,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="checkbox" id="Save-login" class="mr-2 w-4 h-4 text-blue-600" />
                             <p class="text-sm text-gray-600">Save login information</p>
                         </label>
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Forgot password?</a>
+                        <a href="<?php echo BASE_URL; ?>/views/auth/forgot_password.php" class="text-sm text-blue-600 hover:text-blue-800">Forgot password?</a>
                     </div>
 
                     <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition duration-300 transform hover:scale-105 shadow-lg">
