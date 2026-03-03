@@ -1,785 +1,249 @@
-# 🐟 Lake Victoria Tilapia Depot
+# Lake Victoria Tilapia Depot
 
-> A modern, full-featured e-commerce web system for fresh tilapia fish sales from Lake Victoria
+> A full-stack e-commerce web application for ordering fresh tilapia fish online — built with PHP, MySQL, and Tailwind CSS.
 
 [![PHP](https://img.shields.io/badge/PHP-7.4+-777BB4?logo=php&logoColor=white)](https://www.php.net/)
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.0+-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-
-## 📖 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Screenshots](#screenshots)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Demo Accounts](#demo-accounts)
-- [Application URLs](#application-urls)
-- [Technologies Used](#technologies-used)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
 
-## 🌟 Overview
+## Project Overview
 
-Lake Victoria Tilapia Depot is a comprehensive web-based e-commerce system designed for managing and selling fresh tilapia fish online. The application features a stunning landing page, complete customer shopping experience, staff management dashboard, and administrative controls.
+Lake Victoria Tilapia Depot is a production-ready e-commerce platform designed to streamline the sale and delivery of fresh tilapia fish sourced from Lake Victoria, Kenya. The system serves three distinct user roles — **customer**, **staff**, and **admin** — each with a tailored experience.
 
-### 🎯 Key Highlights
-
-- ✅ **Modern Landing Page** - Beautiful, responsive design with smooth animations
-- ✅ **Customer Portal** - Shopping cart, checkout, and order tracking
-- ✅ **M-PESA Integration** - Secure mobile payment processing
-- ✅ **Staff Dashboard** - Analytics, inventory, and order management
-- ✅ **Admin Controls** - User management and system configuration
-- ✅ **Notification System** - Email and SMS alerts
-- ✅ **Mobile-First Design** - Fully responsive across all devices
-- ✅ **Role-Based Access** - Customer, Staff, and Admin roles
+**Problem it solves:** Traditional fish markets rely entirely on in-person sales. This application brings the market online, enabling customers to browse products, place orders, and pay securely via M-PESA mobile money — without visiting the physical location.
 
 ---
 
-## ✨ Features
+## Technologies Used
 
-### 🏠 Landing Page (NEW!)
-
-- **Hero Section** - Eye-catching gradient design with floating fish animations
-- **About Us** - Company story, mission, and values with imagery
-- **Services Display** - Fresh fish sales, cleaning, deep frying, bulk supply
-- **Products Showcase** - Tilapia in small (Ksh 150-250), medium (Ksh 300-500), and large (Ksh 600-900) sizes
-- **Contact Form** - Integrated form with WhatsApp quick contact button
-- **Smooth Navigation** - Sticky header with smooth scroll between sections
-- **Full Responsiveness** - Optimized for desktop, tablet, and mobile devices
-- **SEO Optimized** - Meta tags and semantic HTML structure
-
-### 👥 Customer Features
-
-- **User Authentication** - Secure registration and login system
-- **Product Catalog** - Browse fish with search and filter options
-- **Shopping Cart** - Add, update, and remove items easily
-- **Checkout Process** - Streamlined checkout with address and delivery options
-- **M-PESA Payment** - STK Push integration for secure payments
-- **Order Tracking** - Real-time order status updates
-- **Order History** - View past orders and reorder easily
-- **Profile Management** - Update personal information and preferences
-- **Notifications** - Email and SMS alerts for order updates
-
-### 👨‍💼 Staff Features
-
-- **Analytics Dashboard** - Sales statistics, revenue, and customer metrics
-- **Product Management** - Add, edit, delete fish products with images
-- **Inventory Control** - Track stock levels and low stock alerts
-- **Order Management** - View, update, and process customer orders
-- **Order Status Updates** - Change order status (pending, processing, completed, cancelled)
-- **Sales Reports** - Daily, weekly, and monthly sales analysis
-- **Customer Insights** - View customer statistics and purchase patterns
-
-### 🔐 Admin Features
-
-- **User Management** - Create, edit, delete staff and customer accounts
-- **Role Assignment** - Assign roles (admin, staff, customer)
-- **System Configuration** - Update settings and preferences
-- **Complete Oversight** - Access to all orders and transactions
-- **Analytics & Reporting** - Comprehensive business intelligence
-- **Access Control** - Manage permissions and security settings
+| Layer        | Technology                                 |
+| ------------ | ------------------------------------------ |
+| Backend      | PHP 7.4+, PDO (MySQL)                      |
+| Database     | MySQL 5.7+                                 |
+| Frontend     | HTML5, Tailwind CSS 3.x, JavaScript (ES6+) |
+| Payments     | Safaricom M-PESA Daraja API (STK Push)     |
+| Email        | PHPMailer (SMTP / Gmail)                   |
+| SMS          | Africa's Talking API                       |
+| Architecture | MVC (Model-View-Controller)                |
+| Icons/Fonts  | Font Awesome 6, Google Fonts (Poppins)     |
+| Dev Tools    | XAMPP, Composer, phpMyAdmin                |
 
 ---
 
-## 📸 Screenshots
-
-### Landing Page
-
-- Modern hero section with Lake Victoria background
-- Service cards with icons and descriptions
-- Product showcase with pricing
-- Contact form and business information
+## Features
 
 ### Customer Portal
 
-- Product browsing with images and pricing
-- Shopping cart with quantity controls
-- Checkout with M-PESA integration
-- Order tracking and history
+- Secure registration and login with role-based session management
+- Product catalogue with search and filter functionality
+- Shopping cart — add, update quantities, and remove items
+- Streamlined checkout with delivery address input
+- **M-PESA STK Push** — real-time mobile payment initiation
+- Order tracking with live status updates
+- Order history and re-order capability
+- Profile management
 
 ### Staff Dashboard
 
-- Sales analytics and charts
-- Product management interface
-- Order processing workflow
-- Inventory management
+- Analytics overview — revenue, orders, and stock metrics
+- Full product (fish) management — add, edit, delete, with image uploads
+- Inventory tracking with low-stock alerts
+- Order management — update status across lifecycle (pending → processing → completed/cancelled)
+- Sales reporting (daily, weekly, monthly)
+
+### Admin Controls
+
+- User management — create, edit, and delete accounts
+- Role assignment (customer, staff, admin)
+- Full system access and reporting
+
+### Public-Facing Pages
+
+- Responsive landing page with service sections, pricing, and contact form
+- About, Services, Products, Contact, and Terms pages
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 lake-victoria-tilapia-depot/
-│
-├── config/                         # Configuration files
-│   ├── config.php                 # Base configuration
-│   └── database.php               # Database connection
-│
-├── controllers/                   # Business logic (MVC)
-│   ├── AuthController.php         # Authentication
-│   ├── CartController.php         # Shopping cart
-│   ├── FishController.php         # Product management
-│   ├── MpesaController.php        # Payment processing
-│   ├── NotificationService.php    # Email/SMS
-│   ├── OrderController.php        # Order processing
-│   └── UserController.php         # User management
-│
-├── models/                        # Data models
-│   ├── cart.php                   # Cart model
-│   ├── fish.php                   # Fish model
-│   ├── order.php                  # Order model
-│   └── user.php                   # User model
-│
-├── handlers/                      # Form handlers
-│   ├── auth_handler.php           # Auth processing
-│   └── cart_handler.php           # Cart operations
-│
-├── database/                      # Database schemas
-│   ├── schema.sql                 # Initial schema
-│   └── update_schema.sql          # Schema updates
-│
-├── uploads/                       # Product images
-│   ├── fresh_tilapia.jpg
-│   ├── fresh_tilapia_logo.jpg
-│   ├── tilapia_in_water.jpg
-│   └── ...
-│
-├── views/                         # Presentation layer
-│   ├── customer/                  # Customer pages
-│   │   ├── browse_fish.php
-│   │   ├── cart.php
-│   │   ├── checkout.php
-│   │   ├── my_orders.php
-│   │   ├── order_details.php
-│   │   ├── order_success.php
-│   │   └── profile.php
-│   │
-│   ├── staff/                     # Staff dashboard
-│   │   ├── dashboard.php
-│   │   ├── fish_list.php
-│   │   ├── add_fish.php
-│   │   ├── edit_fish.php
-│   │   ├── orders.php
-│   │   ├── order_details.php
-│   │   ├── users_list.php
-│   │   ├── add_user.php
-│   │   └── edit_user.php
-│   │
-│   ├── auth/                      # Authentication
-│   │   ├── login.php
-│   │   └── register.php
-│   │
-│   ├── public/                    # Public pages
-│   │   ├── about.php
-│   │   └── terms.php
-│   │
-│   └── includes/                  # Reusable components
-│       ├── header.php
-│       ├── footer.php
-│       ├── navbar.php
-│       └── staff_sidebar.php
-│
-├── callback/                      # API callbacks
-│   └── mpesa_callback.php
-│
-├── vendor/                        # Dependencies
-│   └── phpmailer/
-│
-├── index.php                      # Entry point → landing page
-├── landing.php                    # Modern landing page ⭐
-├── composer.json                  # PHP dependencies
-├── LANDING_PAGE_GUIDE.md          # Landing page documentation
-└── README.md                      # This file
+├── config/
+│   ├── config.php           # App, DB, M-PESA, SMTP, and SMS settings
+│   └── database.php         # PDO database connection
+├── controllers/
+│   ├── AuthController.php   # Login, registration, session handling
+│   ├── CartController.php   # Cart logic
+│   ├── FishController.php   # Product CRUD
+│   ├── MpesaController.php  # M-PESA STK Push & callback handling
+│   ├── MpesaHelper.php      # M-PESA token + request helpers
+│   ├── NotificationService.php # Email & SMS dispatch
+│   ├── OrderController.php  # Order lifecycle management
+│   └── UserController.php   # User management
+├── models/
+│   ├── cart.php             # Cart data operations
+│   ├── fish.php             # Fish/product data operations
+│   ├── order.php            # Order data operations
+│   └── user.php             # User data operations
+├── handlers/
+│   ├── auth_handler.php     # Form POST handler for auth
+│   └── cart_handler.php     # Form POST handler for cart actions
+├── views/
+│   ├── auth/                # Login and register pages
+│   ├── customer/            # Customer-facing pages
+│   ├── staff/               # Staff dashboard pages
+│   ├── public/              # Public info pages
+│   └── includes/            # Shared header, footer, navbar, sidebar
+├── callback/
+│   └── mpesa_callback.php   # M-PESA payment result webhook
+├── database/
+│   ├── schema.sql           # Initial database schema
+│   └── update_schema.sql    # Incremental schema updates
+├── uploads/                 # Product images (writable directory)
+├── vendor/                  # Composer dependencies (PHPMailer)
+├── index.php                # Entry point → redirects to landing.php
+├── landing.php              # Public landing page
+└── composer.json
 ```
 
 ---
 
-## 🚀 Installation
+## Setup Instructions
 
 ### Prerequisites
 
-Before you begin, ensure you have the following installed:
+- [XAMPP](https://www.apachefriends.org/) (Apache + MySQL)
+- PHP 7.4+
+- [Composer](https://getcomposer.org/) (for PHPMailer)
 
-- **XAMPP/WAMP/MAMP** - Local server environment
-- **PHP 7.4+** - Programming language
-- **MySQL 5.7+** - Database server
-- **Composer** (Optional) - For PHPMailer dependency
-- **Modern Web Browser** - Chrome, Firefox, Safari, or Edge
-
-### Step-by-Step Setup
-
-#### 1. Install XAMPP
-
-Download and install XAMPP from [https://www.apachefriends.org/](https://www.apachefriends.org/)
-
-Start Apache and MySQL services from XAMPP Control Panel.
-
-#### 2. Clone or Download Project
-
-Place the project folder in your htdocs directory:
+### 1. Clone the Repository
 
 ```bash
-# Windows
+git clone https://github.com/vanessaNjoroge2/Lake_Victoria_Tilapia-_Depot.git
+```
+
+Place the folder inside your XAMPP `htdocs` directory:
+
+```
 C:\xampp\htdocs\lake-victoria-tilapia-depot\
-
-# macOS
-/Applications/XAMPP/htdocs/lake-victoria-tilapia-depot/
-
-# Linux
-/opt/lampp/htdocs/lake-victoria-tilapia-depot/
 ```
 
-#### 3. Create Database
-
-1. Open phpMyAdmin: [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
-2. Create a new database named: `lake_victoria_tilapia_depot`
-3. Import the schema:
-   - Click on the database
-   - Go to "SQL" tab
-   - Open `database/schema.sql` file
-   - Copy all contents
-   - Paste into SQL window
-   - Click "Go" to execute
-
-#### 4. Run Database Updates (Important!)
-
-After importing the initial schema, run the updates:
-
-1. Still in phpMyAdmin, with your database selected
-2. Go to "SQL" tab
-3. Open `database/update_schema.sql` file
-4. Copy all contents
-5. Paste and execute
-
-This adds important features like:
-
-- Quantity in kg for cart and orders
-- Enhanced fish descriptions
-- Order status options
-- Additional fields
-
-#### 5. Set File Permissions
-
-Ensure the uploads directory is writable:
-
-```bash
-# Linux/Mac
-chmod 755 uploads/
-
-# Windows
-# Right-click uploads folder → Properties → Security → Edit
-# Give appropriate write permissions
-```
-
-#### 6. Install PHPMailer (Optional)
-
-For email notifications:
+### 2. Install Dependencies
 
 ```bash
 cd lake-victoria-tilapia-depot
-composer require phpmailer/phpmailer
+composer install
 ```
 
-Or download manually and place in `vendor/phpmailer/` directory.
+### 3. Create the Database
 
----
+1. Start **Apache** and **MySQL** from the XAMPP Control Panel.
+2. Open [http://localhost/phpmyadmin](http://localhost/phpmyadmin).
+3. Create a new database named `lake_victoria_tilapia_depot`.
+4. Import `database/schema.sql` via the **SQL** tab.
+5. Then import `database/update_schema.sql` to apply all schema updates.
 
-## ⚙️ Configuration
+### 4. Configure the Application
 
-### Database Configuration
-
-Edit `config/config.php` and update database credentials:
+Edit `config/config.php`:
 
 ```php
-// Database Configuration
+// Database
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'lake_victoria_tilapia_depot');
 define('DB_USER', 'root');
-define('DB_PASS', '');  // Default XAMPP password is empty
-```
+define('DB_PASS', '');
 
-### M-PESA Configuration
-
-For payment integration, update these settings in `config/config.php`:
-
-```php
-// M-PESA Settings
+// M-PESA (get credentials from https://developer.safaricom.co.ke/)
 define('MPESA_CONSUMER_KEY', 'your_consumer_key');
 define('MPESA_CONSUMER_SECRET', 'your_consumer_secret');
 define('MPESA_SHORTCODE', 'your_shortcode');
 define('MPESA_PASSKEY', 'your_passkey');
-define('MPESA_CALLBACK_URL', BASE_URL . '/callback/mpesa_callback.php');
+define('MPESA_ENVIRONMENT', 'sandbox'); // change to 'production' when live
+
+// Email (SMTP / PHPMailer)
+define('MAIL_HOST', 'smtp.gmail.com');
+define('MAIL_USERNAME', 'your_email@gmail.com');
+define('MAIL_PASSWORD', 'your_app_password');
 ```
 
-Get M-PESA credentials from [Safaricom Daraja Portal](https://developer.safaricom.co.ke/)
+### 5. Verify File Permissions
 
-### Email Configuration
-
-For email notifications, configure SMTP in `config/config.php`:
-
-```php
-// Email Settings
-define('SMTP_HOST', 'smtp.gmail.com');
-define('SMTP_PORT', 587);
-define('SMTP_USERNAME', 'your_email@gmail.com');
-define('SMTP_PASSWORD', 'your_app_password');
-define('SMTP_FROM_EMAIL', 'your_email@gmail.com');
-define('SMTP_FROM_NAME', 'Lake Victoria Tilapia Depot');
-```
-
-### SMS Configuration (Optional)
-
-For SMS notifications via Africa's Talking:
-
-```php
-// SMS Settings
-define('SMS_API_KEY', 'your_api_key');
-define('SMS_USERNAME', 'your_username');
-```
-
-### Admin Contact
-
-Update admin contact information:
-
-```php
-// Admin Contact
-define('ADMIN_EMAIL', 'admin@tilapiadepot.com');
-define('ADMIN_PHONE', '+254700000000');
-```
-
----
-
-## 👥 Demo Accounts
-
-Use these accounts for testing different user roles:
-
-### Admin Account
-
-```
-Username: admin
-Password: password
-Access:  Full system access, user management, all features
-```
-
-### Staff Account
-
-```
-Username: staff1
-Password: password
-Access:  Product management, order management, dashboard
-```
-
-### Customer Account
-
-```
-Username: customer1
-Password: password
-Access:  Browse products, shopping cart, place orders, view history
-```
-
-**Note:** Change these passwords in production!
-
----
-
-## 🌐 Application URLs
-
-### Main Pages
-
-| Page                      | URL                                                                    |
-| ------------------------- | ---------------------------------------------------------------------- |
-| **Landing Page**          | `http://localhost/lake-victoria-tilapia-depot/`                        |
-| **Landing Page (Direct)** | `http://localhost/lake-victoria-tilapia-depot/landing.php`             |
-| **Login**                 | `http://localhost/lake-victoria-tilapia-depot/views/auth/login.php`    |
-| **Register**              | `http://localhost/lake-victoria-tilapia-depot/views/auth/register.php` |
-
-### Customer Pages
-
-| Page              | URL                                 |
-| ----------------- | ----------------------------------- |
-| **Browse Fish**   | `/views/customer/browse_fish.php`   |
-| **Shopping Cart** | `/views/customer/cart.php`          |
-| **Checkout**      | `/views/customer/checkout.php`      |
-| **My Orders**     | `/views/customer/my_orders.php`     |
-| **Order Details** | `/views/customer/order_details.php` |
-| **Profile**       | `/views/customer/profile.php`       |
-
-### Staff/Admin Pages
-
-| Page                 | URL                           |
-| -------------------- | ----------------------------- |
-| **Dashboard**        | `/views/staff/dashboard.php`  |
-| **Fish Management**  | `/views/staff/fish_list.php`  |
-| **Add Fish**         | `/views/staff/add_fish.php`   |
-| **Order Management** | `/views/staff/orders.php`     |
-| **User Management**  | `/views/staff/users_list.php` |
-
-### Public Pages
-
-| Page                   | URL                       |
-| ---------------------- | ------------------------- |
-| **About Us**           | `/views/public/about.php` |
-| **Terms & Conditions** | `/views/public/terms.php` |
-
----
-
-## 🛠️ Technologies Used
-
-### Backend
-
-- **PHP 7.4+** - Server-side scripting
-- **MySQL 5.7+** - Database management
-- **PDO** - Database abstraction layer
-- **PHPMailer** - Email sending
-
-### Frontend
-
-- **HTML5** - Markup
-- **Tailwind CSS 3.0** - Utility-first CSS framework
-- **JavaScript (ES6+)** - Client-side scripting
-- **Font Awesome 6.0** - Icons
-- **Google Fonts (Poppins)** - Typography
-
-### Architecture
-
-- **MVC Pattern** - Model-View-Controller architecture
-- **RESTful API** - For M-PESA integration
-- **Session Management** - User authentication
-- **AJAX** - Asynchronous requests
-
-### Security
-
-- **Password Hashing** - bcrypt algorithm
-- **SQL Injection Prevention** - Prepared statements
-- **XSS Protection** - Input sanitization
-- **CSRF Protection** - Token-based validation
-- **File Upload Validation** - Type and size checks
-
----
-
-## 🔧 Troubleshooting
-
-### Common Issues and Solutions
-
-#### 1. **Page Not Found (404)**
-
-**Problem:** Cannot access the application
-
-**Solutions:**
-
-- Ensure project is in `htdocs` folder
-- Check if Apache is running in XAMPP
-- Verify URL: `http://localhost/lake-victoria-tilapia-depot/`
-- Check for typos in file paths
-
-#### 2. **Database Connection Error**
-
-**Problem:** "Could not connect to database"
-
-**Solutions:**
-
-- Check MySQL is running in XAMPP
-- Verify credentials in `config/config.php`
-- Ensure database `lake_victoria_tilapia_depot` exists
-- Check if tables are imported from `schema.sql`
-
-#### 3. **Blank/White Page**
-
-**Problem:** Page loads but shows nothing
-
-**Solutions:**
-
-- Enable error reporting in `php.ini`:
-  ```ini
-  display_errors = On
-  error_reporting = E_ALL
-  ```
-- Check PHP error logs in XAMPP
-- Verify all required files exist
-- Check file permissions
-
-#### 4. **Image Upload Issues**
-
-**Problem:** Cannot upload product images
-
-**Solutions:**
-
-- Check `uploads/` directory exists
-- Verify folder permissions (755 or 777)
-- Check PHP upload settings in `php.ini`:
-  ```ini
-  upload_max_filesize = 10M
-  post_max_size = 10M
-  ```
-- Ensure file types are allowed (jpg, jpeg, png)
-
-#### 5. **Session Errors**
-
-**Problem:** "Headers already sent" or session issues
-
-**Solutions:**
-
-- Check no output before `session_start()`
-- Remove any spaces before `<?php`
-- Clear browser cookies
-- Check session directory permissions
-
-#### 6. **CSS/JavaScript Not Loading**
-
-**Problem:** Page looks unstyled or lacks interactivity
-
-**Solutions:**
-
-- Check internet connection (Tailwind CSS uses CDN)
-- Verify CDN URLs are accessible
-- Check browser console for 404 errors
-- Clear browser cache (Ctrl+Shift+Delete)
-
-#### 7. **M-PESA Payment Not Working**
-
-**Problem:** Payment fails or doesn't initiate
-
-**Solutions:**
-
-- Verify M-PESA credentials in config
-- Check sandbox/production mode
-- Ensure callback URL is accessible
-- Check M-PESA API logs
-- Verify phone number format (+254...)
-
-#### 8. **Email Notifications Not Sending**
-
-**Problem:** No email notifications received
-
-**Solutions:**
-
-- Check SMTP configuration
-- Enable "Less secure app access" (Gmail)
-- Use App Password instead of regular password
-- Verify PHPMailer is installed
-- Check spam folder
-
----
-
-## 📱 Testing Checklist
-
-### Desktop Testing
-
-- [ ] Landing page displays correctly
-- [ ] Navigation works smoothly
-- [ ] All sections scroll properly
-- [ ] Images load correctly
-- [ ] Login/Register functional
-- [ ] Shopping cart works
-- [ ] Checkout process completes
-- [ ] Staff dashboard accessible
-- [ ] Product management works
-- [ ] Order management functional
-
-### Mobile Testing
-
-- [ ] Responsive layout on mobile
-- [ ] Hamburger menu opens/closes
-- [ ] Touch interactions work
-- [ ] Images scale properly
-- [ ] Forms are usable
-- [ ] Buttons are tappable
-- [ ] Shopping experience smooth
-
-### Browser Compatibility
-
-- [ ] Google Chrome
-- [ ] Mozilla Firefox
-- [ ] Safari
-- [ ] Microsoft Edge
-- [ ] Mobile browsers
-
----
-
-## 📈 Features to Test
-
-### Customer Side
-
-1. ✅ User registration and login
-2. ✅ Browse fish catalog
-3. ✅ Search and filter products
-4. ✅ Add items to cart
-5. ✅ Update cart quantities
-6. ✅ Remove items from cart
-7. ✅ Checkout process
-8. ✅ M-PESA payment (sandbox)
-9. ✅ View order history
-10. ✅ Track order status
-11. ✅ Update profile information
-
-### Staff Side
-
-1. ✅ View dashboard analytics
-2. ✅ Add new fish products
-3. ✅ Edit existing products
-4. ✅ Delete products
-5. ✅ Upload product images
-6. ✅ View all orders
-7. ✅ Update order status
-8. ✅ View low stock alerts
-9. ✅ Generate sales reports
-
-### Admin Side
-
-1. ✅ Manage users (add/edit/delete)
-2. ✅ Assign user roles
-3. ✅ View all system data
-4. ✅ Access all features
-5. ✅ System configuration
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-### Coding Standards
-
-- Follow PSR-12 coding standards for PHP
-- Use meaningful variable and function names
-- Comment complex logic
-- Test before submitting
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-## 📞 Support
-
-For issues, questions, or suggestions:
-
-- **Email:** admin@tilapiadepot.com
-- **Phone:** +254700000000
-- **WhatsApp:** Available on landing page
-- **GitHub Issues:** [Report a bug](https://github.com/vanessaNjoroge2/Lake-Victoria-Tilapia-Depot/issues)
-
----
-
-## 🙏 Acknowledgments
-
-- **Tailwind CSS** - For the amazing CSS framework
-- **Font Awesome** - For the beautiful icons
-- **PHPMailer** - For email functionality
-- **Safaricom Daraja** - For M-PESA API
-- **XAMPP** - For local development environment
-
----
-
-## 📝 Documentation
-
-- **Landing Page Guide:** See `LANDING_PAGE_GUIDE.md` for detailed landing page documentation
-- **API Documentation:** Coming soon
-- **Database Schema:** See `database/schema.sql` for complete structure
-
----
-
-## 🎯 Roadmap
-
-### Upcoming Features
-
-- [ ] Multiple payment gateways (PayPal, Stripe)
-- [ ] Product reviews and ratings
-- [ ] Wishlist functionality
-- [ ] Advanced analytics dashboard
-- [ ] Mobile app (React Native)
-- [ ] Multi-language support
-- [ ] Live chat support
-- [ ] Loyalty program
-- [ ] Referral system
-- [ ] API for third-party integrations
-
----
-
-## 🔒 Security
-
-### Best Practices Implemented
-
-- ✅ Password hashing with bcrypt
-- ✅ SQL injection prevention
-- ✅ XSS protection
-- ✅ CSRF tokens
-- ✅ File upload validation
-- ✅ Session security
-- ✅ Input sanitization
-- ✅ Prepared statements
-
-### Security Recommendations
-
-- Change default passwords immediately
-- Use HTTPS in production
-- Enable SSL certificate
-- Regular security updates
-- Backup database regularly
-- Monitor error logs
-- Implement rate limiting
-- Use environment variables for secrets
-
----
-
-## 💡 Tips for Development
-
-### Local Development
+Ensure the `uploads/` directory is writable:
 
 ```bash
-# Enable error reporting for debugging
-display_errors = On
-error_reporting = E_ALL
-```
-
-### Production Deployment
-
-```bash
-# Disable error display
-display_errors = Off
-log_errors = On
-error_log = /path/to/error.log
-```
-
-### Database Backup
-
-```bash
-# Export database
-mysqldump -u root -p lake_victoria_tilapia_depot > backup.sql
-
-# Import database
-mysql -u root -p lake_victoria_tilapia_depot < backup.sql
+# Linux / macOS
+chmod 755 uploads/
 ```
 
 ---
 
-## 🎉 Success!
+## Usage
 
-Your Lake Victoria Tilapia Depot system is now ready to use!
+Visit the application in your browser:
 
-1. Visit: `http://localhost/lake-victoria-tilapia-depot/`
-2. Explore the beautiful landing page
-3. Login with demo accounts
-4. Test all features
-5. Customize as needed
+```
+http://localhost/lake-victoria-tilapia-depot/
+```
 
-**Happy Coding! 🐟**
+### Demo Accounts
+
+| Role     | Username    | Password   | Access Level                          |
+| -------- | ----------- | ---------- | ------------------------------------- |
+| Admin    | `admin`     | `password` | Full access — users, orders, settings |
+| Staff    | `staff1`    | `password` | Products, orders, dashboard           |
+| Customer | `customer1` | `password` | Browse, cart, checkout, order history |
+
+> **Important:** Change all default passwords before deploying to production.
+
+### Key URLs
+
+| Page             | URL                               |
+| ---------------- | --------------------------------- |
+| Landing Page     | `/`                               |
+| Login            | `/views/auth/login.php`           |
+| Register         | `/views/auth/register.php`        |
+| Browse Products  | `/views/customer/browse_fish.php` |
+| Shopping Cart    | `/views/customer/cart.php`        |
+| Checkout         | `/views/customer/checkout.php`    |
+| Staff Dashboard  | `/views/staff/dashboard.php`      |
+| Order Management | `/views/staff/orders.php`         |
+| User Management  | `/views/staff/users_list.php`     |
 
 ---
 
-_Built with ❤️ for Lake Victoria Tilapia Depot_
+## Security Highlights
 
-_Last Updated: January 2026_
+- Passwords hashed with **bcrypt** (`password_hash`)
+- SQL injection prevention via **PDO prepared statements**
+- XSS protection through **input sanitization and output escaping**
+- Role-based route guards enforced on every protected page
+- File upload validation — type and size restrictions
+- CSRF token protection on sensitive forms
+
+---
+
+## Potential Extensions
+
+- Add **PayPal / Stripe** as alternative payment gateways
+- Implement **product ratings and reviews**
+- Build a **REST API** for a future mobile application (React Native / Flutter)
+- Add **real-time notifications** using WebSockets
+- Integrate **Google Maps API** for delivery tracking
+- Introduce a **loyalty / referral rewards** programme
+
+---
+
+## Author
+
+**Vanessa Njoroge**  
+[GitHub Profile](https://github.com/vanessaNjoroge2)
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

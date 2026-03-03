@@ -19,7 +19,7 @@ $basePath = $isCustomerView ? '' : 'customer/';
         <div class="flex justify-between items-center py-4">
             <!-- Logo -->
             <div class="flex items-center">
-                <a href="/lake-victoria-tilapia-depot/" class="flex items-center space-x-2">
+                <a href="<?php echo BASE_URL; ?>/landing.php" class="flex items-center space-x-2">
                     <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                         <i class="fas fa-fish text-white"></i>
                     </div>
@@ -59,7 +59,7 @@ $basePath = $isCustomerView ? '' : 'customer/';
                             <i class="fas fa-history mr-2"></i>Order History
                         </a>
                         <div class="border-t border-gray-100"></div>
-                        <a href="../../handlers/auth_handler.php?action=logout"
+                        <a href="<?php echo BASE_URL; ?>/views/auth/logout.php"
                             class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
                             <i class="fas fa-sign-out-alt mr-2"></i>Logout
                         </a>
@@ -88,8 +88,8 @@ $basePath = $isCustomerView ? '' : 'customer/';
                     </span>
                 <?php endif; ?>
             </a>
-            <a href="../../handlers/auth_handler.php?action=logout" class="block py-3 px-4 text-red-600 hover:text-red-800 hover:bg-gray-50 border-t border-gray-200">
-                Logout
+            <a href="<?php echo BASE_URL; ?>/views/auth/logout.php" class="block py-3 px-4 text-red-600 hover:text-red-800 hover:bg-gray-50 border-t border-gray-200">
+                <i class="fas fa-sign-out-alt mr-2"></i>Logout
             </a>
         </div>
     </div>

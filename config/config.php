@@ -1,6 +1,6 @@
 <?php
 // Base configuration - UPDATED FOR XAMPP3
-define('BASE_URL', 'http://localhost/Lake-victoria-tilapia-depot');
+define('BASE_URL', 'http://localhost/lake-victoria-tilapia-depot');
 define('SITE_NAME', 'Lake Victoria Tilapia Depot');
 
 // Database configuration
@@ -15,9 +15,9 @@ define('MAX_FILE_SIZE', 5 * 1024 * 1024);
 define('ALLOWED_IMAGE_TYPES', ['jpg', 'jpeg', 'png', 'gif']);
 
 // M-Pesa Configuration
-define('MPESA_CONSUMER_KEY', 'your_consumer_key_here');
-define('MPESA_CONSUMER_SECRET', 'your_consumer_secret_here');
-define('MPESA_SHORTCODE', 'your_business_shortcode');
+define('MPESA_CONSUMER_KEY', 'siv2pL0GOeeNhaSq2dMGXSjfNqb6cl06vYb4xzpjQm7YtDp1');
+define('MPESA_CONSUMER_SECRET', 'SCwNSGwf7fDj2wA1dA1iKduegB1Rxq1bFqdMJGdRfeE4bCjaqJ0meO9zY6MSX05T');
+define('MPESA_SHORTCODE', '174379');
 define('MPESA_PASSKEY', 'your_passkey_here');
 define('MPESA_ENVIRONMENT', 'sandbox'); // or 'production'
 define('MPESA_CALLBACK_URL', BASE_URL . '/callback/mpesa_callback.php');

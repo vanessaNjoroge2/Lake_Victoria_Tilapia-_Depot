@@ -60,10 +60,10 @@ if (isset($_SESSION['error_message'])) {
 <body class="bg-gray-100">
     <div class="flex">
         <!-- Sidebar -->
-        <?php include 'staff_sidebar.php'; ?>
+        <?php include '../includes/staff_sidebar.php'; ?>
 
         <!-- Main Content -->
-        <div class="flex-1 p-8">
+        <div class="flex-1 ml-64 p-8">
             <div class="mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">Order Management</h1>
                 <p class="text-gray-600">Manage and track customer orders</p>

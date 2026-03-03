@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="bg-gray-100">
     <!-- Include Sidebar -->
-    <?php include '../../views/includes/staff_sidebar.php'; ?>
+    <?php include '../includes/staff_sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="ml-64 p-8">

@@ -29,7 +29,16 @@ class MpesaController
     // Generate access token
     private function getAccessToken()
     {
-        $url = (MPESA_ENVIRONMENT === 'production') 
+        // Validate credentials are configured
+        if (
+            $this->consumerKey === 'your_consumer_key_here' ||
+            $this->consumerSecret === 'your_consumer_secret_here'
+        ) {
+            error_log("MPESA Config Error: Consumer key/secret not configured");
+            return null;
+        }
+
+        $url = (MPESA_ENVIRONMENT === 'production')
             ? 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
             : 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
@@ -42,15 +51,18 @@ class MpesaController
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
         $curl_response = curl_exec($curl);
-        
+
         if (curl_errno($curl)) {
-            error_log("MPESA Token Error: " . curl_error($curl));
-            curl_close($curl);
+            error_log("MPESA Token cURL Error: " . curl_error($curl));
             return null;
         }
-        
-        curl_close($curl);
         $response = json_decode($curl_response);
+
+        // Log detailed error if token retrieval fails
+        if (!isset($response->access_token)) {
+            error_log("MPESA Token Response Error: " . $curl_response);
+            error_log("MPESA Token Response decoded: " . print_r($response, true));
+        }
 
         return $response->access_token ?? null;
     }
@@ -62,7 +74,7 @@ class MpesaController
             $access_token = $this->getAccessToken();
 
             if (!$access_token) {
-                throw new Exception("Failed to get access token");
+                throw new Exception("Failed to get access token. Please check M-Pesa configuration in config.php and ensure credentials are properly set.");
             }
 
             $timestamp = date('YmdHis');
@@ -82,7 +94,7 @@ class MpesaController
                 'TransactionDesc' => $description
             ];
 
-            $url = (MPESA_ENVIRONMENT === 'production') 
+            $url = (MPESA_ENVIRONMENT === 'production')
                 ? 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
                 : 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
 
@@ -98,20 +110,18 @@ class MpesaController
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
             $curl_response = curl_exec($curl);
-            
+
             if (curl_errno($curl)) {
                 $error = curl_error($curl);
                 error_log("MPESA STK Push cURL Error: " . $error);
-                curl_close($curl);
                 throw new Exception("Payment request failed: " . $error);
             }
-            
+
             $response = json_decode($curl_response, true);
-            curl_close($curl);
 
             // Log the request
             $this->logPaymentRequest($orderId, $phone, $amount, $response);
-            
+
             // Check for success response
             if (isset($response['ResponseCode']) && $response['ResponseCode'] == '0') {
                 error_log("MPESA STK Push initiated successfully for Order #{$orderId}");

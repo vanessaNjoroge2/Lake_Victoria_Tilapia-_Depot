@@ -71,8 +71,8 @@ try {
                     </a>
                 <?php endif; ?>
 
-                <a href="<?php echo BASE_URL; ?>/handlers/auth_handler.php?action=logout"
-                    class="block text-white hover:bg-blue-700 p-3 rounded flex items-center mt-8">
+                <a href="<?php echo BASE_URL; ?>/views/auth/logout.php"
+                    class="block text-white hover:bg-red-600 p-3 rounded flex items-center mt-8">
                     <i class="fas fa-sign-out-alt mr-3"></i>Logout
                 </a>
             </nav>

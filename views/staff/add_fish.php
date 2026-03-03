@@ -71,10 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="bg-gray-100">
     <div class="flex">
         <!-- Sidebar -->
-        <?php include 'staff_sidebar.php'; ?>
+        <?php include '../includes/staff_sidebar.php'; ?>
 
         <!-- Main Content -->
-        <div class="flex-1 p-8">
+        <div class="flex-1 ml-64 p-8">
             <div class="max-w-4xl mx-auto">
                 <div class="mb-6">
                     <a href="<?php echo BASE_URL; ?>/views/staff/fish_list.php"

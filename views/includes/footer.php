@@ -18,10 +18,10 @@
             <div>
                 <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
                 <div class="space-y-2">
-                    <a href="<?php echo BASE_URL; ?>/views/customer/browse_fish.php" class="block text-gray-300 hover:text-white">Browse Fish</a>
-                    <a href="#" class="block text-gray-300 hover:text-white">About Us</a>
-                    <a href="#" class="block text-gray-300 hover:text-white">Contact</a>
-                    <a href="#" class="block text-gray-300 hover:text-white">Terms & Conditions</a>
+                    <a href="<?php echo BASE_URL; ?>/landing.php" class="block text-gray-300 hover:text-white"><i class="fas fa-home mr-2"></i>Home</a>
+                    <a href="<?php echo BASE_URL; ?>/views/customer/browse_fish.php" class="block text-gray-300 hover:text-white"><i class="fas fa-fish mr-2"></i>Browse Fish</a>
+                    <a href="<?php echo BASE_URL; ?>/views/public/about.php" class="block text-gray-300 hover:text-white"><i class="fas fa-info-circle mr-2"></i>About Us</a>
+                    <a href="<?php echo BASE_URL; ?>/views/public/terms.php" class="block text-gray-300 hover:text-white"><i class="fas fa-file-contract mr-2"></i>Terms & Conditions</a>
                 </div>
             </div>
         </div>

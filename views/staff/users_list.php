@@ -43,7 +43,7 @@ $userStats = $userController->getUserStatistics();
 
 <body class="bg-gray-100">
     <!-- Include Sidebar -->
-    <?php include '../../views/includes/staff_sidebar.php'; ?>
+    <?php include '../includes/staff_sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="ml-64 p-8">
@@ -187,7 +187,7 @@ $userStats = $userController->getUserStatistics();
                                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
                                             <?php
                                             echo $user['role'] === 'admin' ? 'bg-red-100 text-red-800' : ($user['role'] === 'staff' ? 'bg-purple-100 text-purple-800' :
-                                                    'bg-green-100 text-green-800');
+                                                'bg-green-100 text-green-800');
                                             ?>">
                                             <i class="fas fa-<?php
                                                                 echo $user['role'] === 'admin' ? 'user-shield' : ($user['role'] === 'staff' ? 'user-tie' : 'user');
