@@ -1,0 +1,33 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Uploads
+uploads/
+
+# Logs
+*.log
+php_error_log
+
+# Temp files
+tmp/
+temp/
+cache/
+
+# Composer
+composer.lock
+
+# Session files
+sessions/
+
+# Temporary scratch scripts
+scratch/
