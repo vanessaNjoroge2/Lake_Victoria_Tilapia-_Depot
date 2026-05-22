@@ -4,19 +4,31 @@ require_once __DIR__ . '/../models/Order.php';
 
 class OrderController
 {
-    private $db;
-    private $order;
+    private ?\PDO $db;
+    private ?Order $order;
 
     public function __construct()
     {
-        $database = new Database();
-        $this->db = $database->getConnection();
-        $this->order = new Order($this->db);
+        try {
+            $database = new Database();
+            $this->db = $database->getConnection();
+
+            if ($this->db) {
+                $this->order = new Order($this->db);
+            } else {
+                error_log("OrderController: Failed to initialize database connection.");
+                $this->order = null;
+            }
+        } catch (Exception $e) {
+            error_log("OrderController constructor error: " . $e->getMessage());
+            $this->order = null;
+        }
     }
 
-    public function getAllOrders()
+    public function getAllOrders(): array
     {
         try {
+            if (!$this->order) return [];
             $orders = $this->order->getAll();
             return is_array($orders) ? $orders : [];
         } catch (Exception $e) {
@@ -25,9 +37,10 @@ class OrderController
         }
     }
 
-    public function getRecentOrders($limit = 5)
+    public function getRecentOrders(int $limit = 5): array
     {
         try {
+            if (!$this->order) return [];
             $orders = $this->order->getRecentOrders($limit);
             return is_array($orders) ? $orders : [];
         } catch (Exception $e) {
@@ -36,9 +49,10 @@ class OrderController
         }
     }
 
-    public function getSalesAnalytics()
+    public function getSalesAnalytics(): array
     {
         try {
+            if (!$this->order) return ['total_orders' => 0, 'total_revenue' => 0, 'total_customers' => 0];
             $analytics = $this->order->getSalesAnalytics();
             return is_array($analytics) ? $analytics : [
                 'total_orders' => 0,
@@ -51,7 +65,7 @@ class OrderController
         }
     }
 
-    public function updateOrderStatus($order_id, $status)
+    public function updateOrderStatus(int $order_id, string $status): bool
     {
         try {
             // Enhanced validation and debugging
@@ -111,7 +125,7 @@ class OrderController
         }
     }
 
-    public function getOrderById($order_id)
+    public function getOrderById(int $order_id): ?array
     {
         try {
             if (empty($order_id)) {
@@ -124,7 +138,7 @@ class OrderController
         }
     }
 
-    public function getOrderItems($order_id)
+    public function getOrderItems(int $order_id): array
     {
         try {
             if (empty($order_id)) {
@@ -138,7 +152,7 @@ class OrderController
         }
     }
 
-    public function getOrdersByCustomer($customer_id)
+    public function getOrdersByCustomer(int $customer_id): array
     {
         try {
             if (empty($customer_id)) {
@@ -152,7 +166,7 @@ class OrderController
         }
     }
 
-    public function createOrder($orderData)
+    public function createOrder(array $orderData): bool|int
     {
         try {
             // Validate required fields
@@ -176,7 +190,7 @@ class OrderController
         }
     }
 
-    public function addOrderItem($order_id, $fish_id, $quantity, $unit_price)
+    public function addOrderItem(int $order_id, int $fish_id, int $quantity, int|float $unit_price): bool
     {
         try {
             if (empty($order_id) || empty($fish_id) || empty($quantity) || empty($unit_price)) {
@@ -189,7 +203,7 @@ class OrderController
         }
     }
 
-    public function getMonthlySales()
+    public function getMonthlySales(): array
     {
         try {
             $sales = $this->order->getMonthlySales();
@@ -200,7 +214,7 @@ class OrderController
         }
     }
 
-    public function getOrderStats()
+    public function getOrderStats(): array
     {
         try {
             $stats = $this->order->getOrderStats();
@@ -225,7 +239,7 @@ class OrderController
         }
     }
 
-    public function updatePaymentStatus($order_id, $payment_status, $mpesa_receipt = null)
+    public function updatePaymentStatus(int $order_id, string $payment_status, ?string $mpesa_receipt = null): bool
     {
         try {
             if (empty($order_id) || empty($payment_status)) {
@@ -238,7 +252,7 @@ class OrderController
         }
     }
 
-    public function searchOrders($search_term)
+    public function searchOrders(string $search_term): array
     {
         try {
             if (empty($search_term)) {
@@ -252,7 +266,7 @@ class OrderController
         }
     }
 
-    public function getOrdersByStatus($status)
+    public function getOrdersByStatus(string $status): array
     {
         try {
             if (empty($status)) {
@@ -266,7 +280,7 @@ class OrderController
         }
     }
 
-    public function deleteOrder($order_id)
+    public function deleteOrder(int $order_id): bool
     {
         try {
             if (empty($order_id)) {
@@ -279,7 +293,7 @@ class OrderController
         }
     }
 
-    public function cancelOrder($order_id, $customer_id)
+    public function cancelOrder(int $order_id, int $customer_id): bool
     {
         try {
             if (empty($order_id) || empty($customer_id)) {
@@ -292,7 +306,7 @@ class OrderController
         }
     }
 
-    public function deleteOrderByCustomer($order_id, $customer_id)
+    public function deleteOrderByCustomer(int $order_id, int $customer_id): bool
     {
         try {
             if (empty($order_id) || empty($customer_id)) {
@@ -305,7 +319,7 @@ class OrderController
         }
     }
 
-    public function canCustomerDeleteOrder($order_id, $customer_id)
+    public function canCustomerDeleteOrder(int $order_id, int $customer_id): bool
     {
         try {
             if (empty($order_id) || empty($customer_id)) {
@@ -319,7 +333,7 @@ class OrderController
     }
     // Add to OrderController class
 
-    public function processPayment($order_id, $phone, $amount)
+    public function processPayment(int $order_id, string $phone, int|float $amount): array
     {
         try {
             if (empty($order_id) || empty($phone) || empty($amount)) {
@@ -327,35 +341,52 @@ class OrderController
             }
 
             require_once 'MpesaController.php';
+            require_once 'MpesaHelper.php';
+
+            // Validate phone number format
+            $formatted_phone = MpesaHelper::formatPhoneNumber($phone);
+            if (!$formatted_phone) {
+                return ['error' => 'Invalid phone number format. Please use: 0712345678 or 254712345678'];
+            }
+
+            // Validate amount
+            if (!MpesaHelper::isValidAmount($amount)) {
+                return ['error' => 'Invalid amount. Must be between 1 and 150,000 KSH'];
+            }
+
             $mpesa = new MpesaController();
 
-            $response = $mpesa->initiateSTKPush($phone, $amount, $order_id);
+            $response = $mpesa->initiateSTKPush($formatted_phone, $amount, $order_id);
 
             if (isset($response['error'])) {
                 // Update order payment status to failed
                 $this->updatePaymentStatus($order_id, 'failed');
+                error_log("Payment processing error for Order #{$order_id}: " . $response['error']);
                 return ['error' => $response['error']];
             }
 
             if (isset($response['ResponseCode']) && $response['ResponseCode'] == '0') {
                 // STK push initiated successfully
                 $this->updatePaymentStatus($order_id, 'pending');
+                error_log("Payment initiated successfully for Order #{$order_id}");
                 return [
                     'success' => true,
                     'message' => 'Payment request sent to your phone',
-                    'checkout_request_id' => $response['CheckoutRequestID']
+                    'checkout_request_id' => $response['CheckoutRequestID'] ?? null
                 ];
             } else {
                 $this->updatePaymentStatus($order_id, 'failed');
-                return ['error' => $response['ResponseDescription'] ?? 'Payment initiation failed'];
+                $error_msg = $response['ResponseDescription'] ?? $response['errorMessage'] ?? 'Payment initiation failed. Please check your phone number and try again.';
+                error_log("Payment failed for Order #{$order_id}: " . json_encode($response));
+                return ['error' => $error_msg];
             }
         } catch (Exception $e) {
-            error_log("Process payment error: " . $e->getMessage());
-            return ['error' => 'Payment processing failed'];
+            error_log("Process payment exception for Order #{$order_id}: " . $e->getMessage());
+            return ['error' => $e->getMessage()];
         }
     }
 
-    public function getOrderPaymentStatus($order_id)
+    public function getOrderPaymentStatus(int $order_id): ?array
     {
         try {
             require_once 'MpesaController.php';

@@ -9,13 +9,25 @@ class AuthController
 
     public function __construct()
     {
-        $database = new Database();
-        $this->db = $database->getConnection();
-        $this->user = new User($this->db);
+        try {
+            $database = new Database();
+            $this->db = $database->getConnection();
+            
+            if ($this->db) {
+                $this->user = new User($this->db);
+            } else {
+                error_log("AuthController: Failed to initialize database connection.");
+                $this->user = null;
+            }
+        } catch (Exception $e) {
+            error_log("AuthController constructor error: " . $e->getMessage());
+            $this->user = null;
+        }
     }
 
     public function login($username, $password)
     {
+        if (!$this->user) return false;
         $this->user->username = $username;
         $this->user->password = $password;
 
@@ -33,6 +45,7 @@ class AuthController
     public function register($data)
     {
         try {
+            if (!$this->user) return "System error: Database connection not available.";
             // Check for duplicate username before attempting INSERT
             if ($this->user->usernameExists($data['username'])) {
                 return "That username is already taken. Please choose a different one.";
@@ -49,7 +62,7 @@ class AuthController
             $this->user->full_name = $data['full_name'];
             $this->user->phone     = $data['phone'];
             $this->user->address   = $data['address'];
-            $this->user->role      = 'customer';
+            $this->user->role      = $data['role'] ?? 'customer';
 
             if ($this->user->register()) {
                 return true;
@@ -80,7 +93,7 @@ class AuthController
 
         // Generate a cryptographically secure token
         $token   = bin2hex(random_bytes(32));
-        $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
+        $expires = date('Y-m-d H:i:s', strtotime('+5 minutes'));
 
         $this->user->setResetToken($user['id'], $token, $expires);
 
@@ -88,10 +101,11 @@ class AuthController
 
         // Attempt to send email via PHPMailer
         $email_sent = false;
-        if (defined('MAIL_USERNAME') && MAIL_USERNAME !== 'your_email@gmail.com') {
+        if (defined('MAIL_USERNAME') && MAIL_USERNAME !== 'ENTER_YOUR_SENDER_GMAIL_HERE@gmail.com') {
             try {
                 require_once __DIR__ . '/../vendor/autoload.php';
                 $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+                $mail->SMTPDebug  = 0; // Disable debug output
                 $mail->isSMTP();
                 $mail->Host       = MAIL_HOST;
                 $mail->SMTPAuth   = true;
@@ -99,28 +113,38 @@ class AuthController
                 $mail->Password   = MAIL_PASSWORD;
                 $mail->SMTPSecure = MAIL_ENCRYPTION;
                 $mail->Port       = MAIL_PORT;
+
+                // Bypassing SSL certificate verification (common fix for XAMPP/Localhost)
+                $mail->SMTPOptions = array(
+                    'ssl' => array(
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true
+                    )
+                );
+
                 $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
                 $mail->addAddress($email, $user['full_name']);
                 $mail->isHTML(true);
                 $mail->Subject = 'Password Reset - ' . SITE_NAME;
                 $mail->Body    = '
                     <p>Hello ' . htmlspecialchars($user['full_name']) . ',</p>
-                    <p>Click the link below to reset your password. This link expires in 1 hour.</p>
+                    <p>Click the link below to reset your password. This link expires in 5 minutes.</p>
                     <p><a href="' . $reset_url . '" style="background:#0891b2;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;">Reset Password</a></p>
                     <p>Or copy this URL: ' . $reset_url . '</p>
                     <p>If you did not request this, ignore this email.</p>';
                 $mail->send();
                 $email_sent = true;
-            } catch (Exception $e) {
-                // Email failed — fall through to show link in dev mode
+            } catch (\Exception $e) {
+                error_log("PHPMailer error: " . $e->getMessage());
             }
         }
 
         return [
             'success'   => true,
             'message'   => $email_sent
-                ? "A password reset link has been sent to your email address."
-                : "Reset link generated. (Email not configured — see link below for testing.)",
+                ? "Link sent successfully to your email."
+                : "The system encountered an issue sending the email. Please contact support or try again later.",
             'reset_url' => $email_sent ? null : $reset_url,
             'dev_mode'  => !$email_sent
         ];

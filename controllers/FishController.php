@@ -9,28 +9,43 @@ class FishController
 
     public function __construct()
     {
-        $database = new Database();
-        $this->db = $database->getConnection();
-        $this->fish = new Fish($this->db);
+        try {
+            $database = new Database();
+            $this->db = $database->getConnection();
+            
+            if ($this->db) {
+                $this->fish = new Fish($this->db);
+            } else {
+                error_log("FishController: Failed to initialize database connection.");
+                $this->fish = null;
+            }
+        } catch (Exception $e) {
+            error_log("FishController constructor error: " . $e->getMessage());
+            $this->fish = null;
+        }
     }
 
     public function getActiveFish()
     {
+        if (!$this->fish) return [];
         return $this->fish->getAllActive();
     }
 
     public function getAllFish()
     {
+        if (!$this->fish) return [];
         return $this->fish->getAll();
     }
 
     public function getLowStockItems()
     {
+        if (!$this->fish) return [];
         return $this->fish->getLowStockItems();
     }
 
     public function searchFish($searchTerm)
     {
+        if (!$this->fish) return [];
         return $this->fish->search($searchTerm);
     }
 

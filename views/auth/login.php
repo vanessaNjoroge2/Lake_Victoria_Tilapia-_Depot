@@ -7,6 +7,8 @@
 
 require_once '../../config/config.php';
 require_once '../../controllers/AuthController.php';
+require_once '../../controllers/TwoFactorController.php';
+require_once '../../controllers/AuditController.php';
 
 $authController = new AuthController();
 
@@ -48,12 +50,115 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($username) || empty($password)) {
             $error = "Username and password are required.";
-        } elseif ($authController->login($username, $password)) {
-            // Regenerate session ID after successful login (session fixation prevention)
-            session_regenerate_id(true);
-            $authController->postLoginRedirect();
         } else {
-            $error = "Invalid username or password.";
+            $twoFactorController = new TwoFactorController();
+            
+            // 1. IP Rate Limiting (max 10 login attempts per 15 minutes)
+            if (!$twoFactorController->checkRateLimit('login_attempt_ip', 10, 900)) {
+                $error = "Too many login attempts from this IP. Please wait 15 minutes before trying again.";
+                AuditController::logActivity(null, 'login_ip_rate_limited', 'users', null);
+            } else {
+                try {
+                    $database = new Database();
+                    $db = $database->getConnection();
+                    
+                    if (!$db) {
+                        $error = "Database connection unavailable. Please try again later.";
+                    } else {
+                        // 2. Fetch User row to check lockout
+                        $query = "SELECT * FROM users WHERE username = :username LIMIT 1";
+                        $stmt = $db->prepare($query);
+                        $stmt->execute([':username' => $username]);
+                        $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                        if ($userRow) {
+                            $now = date('Y-m-d H:i:s');
+                            
+                            // Check Lockout Status
+                            if (!empty($userRow['locked_until']) && strtotime($userRow['locked_until']) > time()) {
+                                $lockTimeRemaining = strtotime($userRow['locked_until']) - time();
+                                $lockMins = ceil($lockTimeRemaining / 60);
+                                $error = "This account is temporarily locked due to too many failed login attempts. Please try again in {$lockMins} minutes.";
+                                AuditController::logActivity($userRow['id'], 'login_attempt_on_locked_account', 'users', $userRow['id']);
+                            } else {
+                                // 3. Verify Credentials
+                                if (password_verify($password, $userRow['password'])) {
+                                    // Reset failed login attempts and clear lockout
+                                    $upd = "UPDATE users SET login_attempts = 0, locked_until = NULL, last_login = NOW(), last_login_ip = :ip WHERE id = :id";
+                                    $updStmt = $db->prepare($upd);
+                                    $updStmt->execute([':ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1', ':id' => $userRow['id']]);
+
+                                    // 4. Trigger Two-Factor Authentication (mandatory for staff/admin, optional for customer if enabled)
+                                    if ($twoFactorController->is2faRequired($userRow)) {
+                                        $_SESSION['temp_2fa_user_id'] = $userRow['id'];
+                                        
+                                        $otpCode = $twoFactorController->generateOTP($userRow['id']);
+                                        if ($otpCode === 'rate_limited') {
+                                            $error = "Too many verification code requests. Please wait up to an hour before requesting a new code.";
+                                            unset($_SESSION['temp_2fa_user_id']);
+                                        } elseif ($otpCode === false) {
+                                            $error = "Failed to generate security code. Please contact support.";
+                                            unset($_SESSION['temp_2fa_user_id']);
+                                        } else {
+                                            $sent = $twoFactorController->sendOTP($userRow['id'], $otpCode);
+                                            if ($sent) {
+                                                $_SESSION['flash'] = ['type' => 'success', 'message' => 'Verification code sent.'];
+                                                header("Location: " . BASE_URL . "/views/auth/verify_otp.php");
+                                                exit();
+                                            } else {
+                                                $error = "Failed to send verification code. Please check your SMS/email configuration.";
+                                                unset($_SESSION['temp_2fa_user_id']);
+                                            }
+                                        }
+                                    } else {
+                                        // Standard login without 2FA
+                                        session_regenerate_id(true);
+                                        $_SESSION['user_id'] = $userRow['id'];
+                                        $_SESSION['username'] = $userRow['username'];
+                                        $_SESSION['role'] = $userRow['role'];
+                                        $_SESSION['full_name'] = $userRow['full_name'];
+                                        $_SESSION['last_activity'] = time();
+                                        $_SESSION['user_ip'] = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+
+                                        // Log successful login
+                                        AuditController::logActivity($userRow['id'], 'login_success', 'users', $userRow['id']);
+
+                                        $authController->postLoginRedirect();
+                                    }
+                                } else {
+                                    // Invalid password. Increment login attempts.
+                                    $attempts = (int)$userRow['login_attempts'] + 1;
+                                    
+                                    if ($attempts >= 5) {
+                                        $lockTime = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+                                        $upd = "UPDATE users SET login_attempts = :attempts, locked_until = :locked_until WHERE id = :id";
+                                        $updStmt = $db->prepare($upd);
+                                        $updStmt->execute([':attempts' => $attempts, ':locked_until' => $lockTime, ':id' => $userRow['id']]);
+                                        
+                                        AuditController::logActivity($userRow['id'], 'account_locked', 'users', $userRow['id']);
+                                        $error = "Invalid username or password. This account has been locked for 30 minutes due to 5 consecutive failed attempts.";
+                                    } else {
+                                        $upd = "UPDATE users SET login_attempts = :attempts WHERE id = :id";
+                                        $updStmt = $db->prepare($upd);
+                                        $updStmt->execute([':attempts' => $attempts, ':id' => $userRow['id']]);
+                                        
+                                        AuditController::logActivity($userRow['id'], 'login_failed_wrong_password', 'users', $userRow['id']);
+                                        $remaining = 5 - $attempts;
+                                        $error = "Invalid username or password. {$remaining} attempts remaining before account lockout.";
+                                    }
+                                }
+                            }
+                        } else {
+                            // User not found
+                            AuditController::logActivity(null, 'login_failed_unknown_user', 'users', null);
+                            $error = "Invalid username or password.";
+                        }
+                    }
+                } catch (Exception $e) {
+                    error_log("Login handling error: " . $e->getMessage());
+                    $error = "A system error occurred. Please try again later.";
+                }
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';
+require_once __DIR__ . '/config.php';
 
 class Database
 {
@@ -19,8 +19,11 @@ class Database
                 $this->password
             );
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch (PDOException $exception) {
             error_log("Database connection error: " . $exception->getMessage());
+            // Re-throw the exception so the calling code knows something went wrong
+            throw new Exception("Database Connection Failed: " . $exception->getMessage());
         }
         return $this->conn;
     }

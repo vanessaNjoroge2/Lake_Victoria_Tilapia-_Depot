@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $full_name = trim($_POST['full_name'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $address = trim($_POST['address'] ?? '');
+    $role = $_POST['role'] ?? 'customer';
 
     // Validation
     if (empty($username) || empty($email) || empty($password) || empty($full_name) || empty($phone)) {
@@ -44,7 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'password' => $password,
             'full_name' => $full_name,
             'phone' => $phone,
-            'address' => $address
+            'address' => $address,
+            'role' => $role
         ]);
 
         if ($result === true) {
@@ -191,6 +193,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
+                    <!-- Account Type / Role Selection -->
+                    <div class="md:col-span-2 mt-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Account Type <span class="text-red-500">*</span></label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="relative flex items-center p-3 border-2 rounded-xl cursor-pointer transition hover:bg-cyan-50 <?php echo ($_POST['role'] ?? 'customer') === 'customer' ? 'border-cyan-500 bg-cyan-50' : 'border-gray-200'; ?>" id="label-customer">
+                                <input type="radio" name="role" value="customer" class="hidden" <?php echo ($_POST['role'] ?? 'customer') === 'customer' ? 'checked' : ''; ?> onchange="updateRoleUI('customer')">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 flex items-center justify-center rounded-full bg-cyan-100 text-cyan-600 flex-shrink-0">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="font-bold text-gray-800 text-sm sm:text-base">Customer</div>
+                                        <div class="text-[10px] sm:text-xs text-gray-500 truncate">I want to buy fish</div>
+                                    </div>
+                                </div>
+                                <div class="absolute top-2 right-2 text-cyan-600 <?php echo ($_POST['role'] ?? 'customer') === 'customer' ? 'block' : 'hidden'; ?>" id="check-customer">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </label>
+
+                            <label class="relative flex items-center p-3 border-2 rounded-xl cursor-pointer transition hover:bg-cyan-50 <?php echo ($_POST['role'] ?? '') === 'staff' ? 'border-cyan-500 bg-cyan-50' : 'border-gray-200'; ?>" id="label-staff">
+                                <input type="radio" name="role" value="staff" class="hidden" <?php echo ($_POST['role'] ?? '') === 'staff' ? 'checked' : ''; ?> onchange="updateRoleUI('staff')">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 flex items-center justify-center rounded-full bg-yellow-100 text-yellow-600 flex-shrink-0">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="font-bold text-gray-800 text-sm sm:text-base">Staff</div>
+                                        <div class="text-[10px] sm:text-xs text-gray-500 truncate">I manage inventory</div>
+                                    </div>
+                                </div>
+                                <div class="absolute top-2 right-2 text-cyan-600 <?php echo ($_POST['role'] ?? '') === 'staff' ? 'block' : 'hidden'; ?>" id="check-staff">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Address -->
@@ -240,6 +279,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 f.type = 'password';
                 i.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        function updateRoleUI(role) {
+            const customerLabel = document.getElementById('label-customer');
+            const staffLabel = document.getElementById('label-staff');
+            const customerCheck = document.getElementById('check-customer');
+            const staffCheck = document.getElementById('check-staff');
+
+            if (role === 'customer') {
+                customerLabel.classList.add('border-cyan-500', 'bg-cyan-50');
+                customerLabel.classList.remove('border-gray-200');
+                staffLabel.classList.remove('border-cyan-500', 'bg-cyan-50');
+                staffLabel.classList.add('border-gray-200');
+                customerCheck.classList.remove('hidden');
+                staffCheck.classList.add('hidden');
+            } else {
+                staffLabel.classList.add('border-cyan-500', 'bg-cyan-50');
+                staffLabel.classList.remove('border-gray-200');
+                customerLabel.classList.remove('border-cyan-500', 'bg-cyan-50');
+                customerLabel.classList.add('border-gray-200');
+                staffCheck.classList.remove('hidden');
+                customerCheck.classList.add('hidden');
             }
         }
     </script>

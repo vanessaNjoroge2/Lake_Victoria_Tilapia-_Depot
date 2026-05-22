@@ -4,13 +4,13 @@ require_once __DIR__ . '/../models/Order.php';
 
 class MpesaController
 {
-    private $db;
-    private $order;
-    private $consumerKey;
-    private $consumerSecret;
-    private $shortcode;
-    private $passkey;
-    private $callbackUrl;
+    private ?\PDO $db;
+    private ?Order $order;
+    private string $consumerKey;
+    private string $consumerSecret;
+    private string $shortcode;
+    private string $passkey;
+    private string $callbackUrl;
 
     public function __construct()
     {
@@ -27,14 +27,23 @@ class MpesaController
     }
 
     // Generate access token
-    private function getAccessToken()
+    private function getAccessToken(): ?string
     {
         // Validate credentials are configured
         if (
             $this->consumerKey === 'your_consumer_key_here' ||
             $this->consumerSecret === 'your_consumer_secret_here'
         ) {
-            error_log("MPESA Config Error: Consumer key/secret not configured");
+            error_log("MPESA Config Error: Consumer key/secret not configured. Update config.php or set environment variables.");
+            return null;
+        }
+
+        // Validate passkey is configured (for sandbox it's the default)
+        if (
+            $this->passkey === 'your_passkey_here' ||
+            empty($this->passkey)
+        ) {
+            error_log("MPESA Config Error: Passkey not configured. Update config.php or set MPESA_PASSKEY environment variable.");
             return null;
         }
 
@@ -68,9 +77,28 @@ class MpesaController
     }
 
     // Initiate STK Push
-    public function initiateSTKPush($phone, $amount, $orderId, $description = "Fish Order Payment")
+    public function initiateSTKPush(string $phone, int|float $amount, int $orderId, string $description = "Fish Order Payment"): array
     {
         try {
+            // Validate phone number
+            if (empty($phone)) {
+                throw new Exception("Phone number is required for payment.");
+            }
+
+            // Format and validate phone number
+            require_once __DIR__ . '/MpesaHelper.php';
+            $formatted_phone = MpesaHelper::formatPhoneNumber($phone);
+            if (!$formatted_phone) {
+                throw new Exception("Invalid phone number format. Please use format: 0712345678 or 254712345678");
+            }
+            $phone = $formatted_phone;
+
+            // Validate amount
+            require_once __DIR__ . '/MpesaHelper.php';
+            if (!MpesaHelper::isValidAmount($amount)) {
+                throw new Exception("Invalid amount. Amount must be between 1 and 150000 KSH.");
+            }
+
             $access_token = $this->getAccessToken();
 
             if (!$access_token) {
@@ -108,25 +136,40 @@ class MpesaController
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($curl_post_data));
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($curl, CURLOPT_TIMEOUT, 30);
 
             $curl_response = curl_exec($curl);
+            $curl_info = curl_getinfo($curl);
+            $curl_errno = curl_errno($curl);
+            $curl_error = curl_error($curl);
+            curl_close($curl);
 
-            if (curl_errno($curl)) {
-                $error = curl_error($curl);
-                error_log("MPESA STK Push cURL Error: " . $error);
-                throw new Exception("Payment request failed: " . $error);
+            if ($curl_errno) {
+                $error = $curl_error;
+                error_log("MPESA STK Push cURL Error [" . $curl_errno . "]: " . $error);
+                error_log("MPESA Request Details - Phone: {$phone}, Amount: {$amount}, OrderID: {$orderId}");
+                throw new Exception("Network error during payment request: " . $error);
             }
 
+            error_log("MPESA STK Push HTTP Response Code: " . $curl_info['http_code']);
+            error_log("MPESA STK Push Response Body: " . $curl_response);
+
             $response = json_decode($curl_response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log("MPESA STK Push JSON Decode Error: " . json_last_error_msg());
+                error_log("Raw Response: " . $curl_response);
+                throw new Exception("Invalid response from payment service. Please try again.");
+            }
 
             // Log the request
             $this->logPaymentRequest($orderId, $phone, $amount, $response);
 
             // Check for success response
             if (isset($response['ResponseCode']) && $response['ResponseCode'] == '0') {
-                error_log("MPESA STK Push initiated successfully for Order #{$orderId}");
+                error_log("MPESA STK Push initiated successfully for Order #{$orderId}, CheckoutRequestID: " . ($response['CheckoutRequestID'] ?? 'N/A'));
             } else {
-                $errorMessage = $response['errorMessage'] ?? $response['ResponseDescription'] ?? 'Unknown error';
+                $errorMessage = $response['errorMessage'] ?? $response['ResponseDescription'] ?? json_encode($response);
                 error_log("MPESA STK Push failed for Order #{$orderId}: " . $errorMessage);
             }
 
@@ -138,7 +181,7 @@ class MpesaController
     }
 
     // Handle M-Pesa callback
-    public function handleCallback($callback_data)
+    public function handleCallback(string $callback_data): array
     {
         try {
             $data = json_decode($callback_data, true);
@@ -212,7 +255,7 @@ class MpesaController
     }
 
     // Log payment request
-    private function logPaymentRequest($order_id, $phone, $amount, $response)
+    private function logPaymentRequest(int $order_id, string $phone, int|float $amount, array $response): bool
     {
         try {
             $query = "INSERT INTO payment_requests 
@@ -220,12 +263,12 @@ class MpesaController
                      VALUES (:order_id, :phone, :amount, :merchant_request_id, :checkout_request_id, :response_data, NOW())";
 
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(":order_id", $order_id);
-            $stmt->bindParam(":phone", $phone);
-            $stmt->bindParam(":amount", $amount);
-            $stmt->bindParam(":merchant_request_id", $response['MerchantRequestID'] ?? '');
-            $stmt->bindParam(":checkout_request_id", $response['CheckoutRequestID'] ?? '');
-            $stmt->bindParam(":response_data", json_encode($response));
+            $stmt->bindValue(":order_id", $order_id);
+            $stmt->bindValue(":phone", $phone);
+            $stmt->bindValue(":amount", $amount);
+            $stmt->bindValue(":merchant_request_id", $response['MerchantRequestID'] ?? '');
+            $stmt->bindValue(":checkout_request_id", $response['CheckoutRequestID'] ?? '');
+            $stmt->bindValue(":response_data", json_encode($response));
 
             return $stmt->execute();
         } catch (Exception $e) {
@@ -235,7 +278,7 @@ class MpesaController
     }
 
     // Find order by checkout ID
-    private function findOrderByCheckoutId($checkout_request_id)
+    private function findOrderByCheckoutId(string $checkout_request_id): ?int
     {
         try {
             $query = "SELECT order_id FROM payment_requests 
@@ -243,7 +286,7 @@ class MpesaController
                      ORDER BY created_at DESC LIMIT 1";
 
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(":checkout_request_id", $checkout_request_id);
+            $stmt->bindValue(":checkout_request_id", $checkout_request_id);
             $stmt->execute();
 
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -255,7 +298,7 @@ class MpesaController
     }
 
     // Update successful payment
-    private function updateSuccessfulPayment($order_id, $amount, $mpesa_receipt, $phone, $transaction_date)
+    private function updateSuccessfulPayment(int $order_id, int|float $amount, string $mpesa_receipt, string $phone, string $transaction_date): bool
     {
         try {
             // Update order payment status
@@ -268,11 +311,11 @@ class MpesaController
                      VALUES (:order_id, :amount, :mpesa_receipt, :phone, :transaction_date, 'success', NOW())";
 
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(":order_id", $order_id);
-            $stmt->bindParam(":amount", $amount);
-            $stmt->bindParam(":mpesa_receipt", $mpesa_receipt);
-            $stmt->bindParam(":phone", $phone);
-            $stmt->bindParam(":transaction_date", $transaction_date);
+            $stmt->bindValue(":order_id", $order_id);
+            $stmt->bindValue(":amount", $amount);
+            $stmt->bindValue(":mpesa_receipt", $mpesa_receipt);
+            $stmt->bindValue(":phone", $phone);
+            $stmt->bindValue(":transaction_date", $transaction_date);
 
             return $stmt->execute();
         } catch (Exception $e) {
@@ -282,7 +325,7 @@ class MpesaController
     }
 
     // Update failed payment
-    private function updateFailedPayment($order_id, $reason)
+    private function updateFailedPayment(int $order_id, string $reason): bool
     {
         try {
             // Update order payment status
@@ -295,8 +338,8 @@ class MpesaController
                      VALUES (:order_id, 'failed', :failure_reason, NOW())";
 
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(":order_id", $order_id);
-            $stmt->bindParam(":failure_reason", $reason);
+            $stmt->bindValue(":order_id", $order_id);
+            $stmt->bindValue(":failure_reason", $reason);
 
             return $stmt->execute();
         } catch (Exception $e) {
@@ -306,7 +349,7 @@ class MpesaController
     }
 
     // Check payment status
-    public function checkPaymentStatus($order_id)
+    public function checkPaymentStatus(int $order_id): ?array
     {
         try {
             $query = "SELECT pt.*, o.payment_status 

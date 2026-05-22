@@ -9,13 +9,25 @@ class UserController
 
     public function __construct()
     {
-        $database = new Database();
-        $this->db = $database->getConnection();
-        $this->user = new User($this->db);
+        try {
+            $database = new Database();
+            $this->db = $database->getConnection();
+            
+            if ($this->db) {
+                $this->user = new User($this->db);
+            } else {
+                error_log("UserController: Failed to initialize database connection.");
+                $this->user = null;
+            }
+        } catch (Exception $e) {
+            error_log("UserController constructor error: " . $e->getMessage());
+            $this->user = null;
+        }
     }
 
     public function getCustomerStats()
     {
+        if (!$this->db) return ['total_customers' => 0, 'new_customers_30_days' => 0];
         $query = "SELECT 
                     COUNT(*) as total_customers,
                     COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as new_customers_30_days
@@ -31,6 +43,7 @@ class UserController
     public function getAllUsers()
     {
         try {
+            if (!$this->user) return [];
             return $this->user->getAllUsers();
         } catch (Exception $e) {
             error_log("Get all users error: " . $e->getMessage());
@@ -42,6 +55,7 @@ class UserController
     public function getAllStaff()
     {
         try {
+            if (!$this->user) return [];
             return $this->user->getAllStaff();
         } catch (Exception $e) {
             error_log("Get all staff error: " . $e->getMessage());
@@ -53,6 +67,7 @@ class UserController
     public function getUserById($id)
     {
         try {
+            if (!$this->user) return null;
             return $this->user->getUserById($id);
         } catch (Exception $e) {
             error_log("Get user by ID error: " . $e->getMessage());
@@ -64,6 +79,7 @@ class UserController
     public function addStaffUser($data)
     {
         try {
+            if (!$this->user) return ['success' => false, 'message' => 'Database connection unavailable.'];
             // Validate required fields
             if (empty($data['username']) || empty($data['email']) || empty($data['password']) || empty($data['full_name'])) {
                 return ['success' => false, 'message' => 'Please fill all required fields.'];
@@ -110,6 +126,7 @@ class UserController
     public function updateUser($id, $data)
     {
         try {
+            if (!$this->user) return ['success' => false, 'message' => 'Database connection unavailable.'];
             // Validate required fields
             if (empty($data['full_name']) || empty($data['email'])) {
                 return ['success' => false, 'message' => 'Please fill all required fields.'];
@@ -149,6 +166,7 @@ class UserController
     public function deleteUser($id)
     {
         try {
+            if (!$this->user) return ['success' => false, 'message' => 'Database connection unavailable.'];
             // Prevent deleting current user
             if ($id == ($_SESSION['user_id'] ?? 0)) {
                 return ['success' => false, 'message' => 'Cannot delete your own account.'];
@@ -171,6 +189,7 @@ class UserController
     public function changePassword($user_id, $current_password, $new_password, $confirm_password)
     {
         try {
+            if (!$this->user) return ['success' => false, 'message' => 'Database connection unavailable.'];
             // Validate inputs
             if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
                 return ['success' => false, 'message' => 'Please fill all password fields.'];
@@ -204,6 +223,7 @@ class UserController
     public function searchUsers($search_term)
     {
         try {
+            if (!$this->user) return [];
             return $this->user->searchUsers($search_term);
         } catch (Exception $e) {
             error_log("Search users error: " . $e->getMessage());
@@ -215,6 +235,7 @@ class UserController
     public function getUserStatistics()
     {
         try {
+            if (!$this->user) throw new Exception("No user model");
             return $this->user->getUserStatistics();
         } catch (Exception $e) {
             error_log("Get user statistics error: " . $e->getMessage());
