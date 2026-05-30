@@ -25,17 +25,8 @@ class TwoFactorController
      */
     public function is2faRequired(array $user): bool
     {
-        // 2FA is mandatory for admin and staff
-        if (isset($user['role']) && in_array($user['role'], ['admin', 'staff'])) {
-            return true;
-        }
-
-        // 2FA is optional but enabled for customers
-        if (isset($user['role']) && $user['role'] === 'customer') {
-            return !empty($user['two_factor_enabled']);
-        }
-
-        return false;
+        // 2FA is mandatory for all user roles (admin, staff, customer, wholesaler) to ensure secure verification on every login attempt
+        return true;
     }
 
     /**
@@ -101,6 +92,30 @@ class TwoFactorController
         } catch (Exception $e) {
             error_log("Rate limiting error: " . $e->getMessage());
             return true;
+        }
+    }
+
+    /**
+     * Clear the rate limit for a given action and the current IP address
+     *
+     * @param string $actionKey Unique action key (e.g. 'login_attempt_ip')
+     * @return bool
+     */
+    public function clearRateLimit(string $actionKey): bool
+    {
+        if (!$this->db) {
+            return false;
+        }
+
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+
+        try {
+            $query = "DELETE FROM rate_limits WHERE ip_address = :ip AND action_key = :key";
+            $stmt = $this->db->prepare($query);
+            return $stmt->execute([':ip' => $ipAddress, ':key' => $actionKey]);
+        } catch (Exception $e) {
+            error_log("Failed to clear rate limit: " . $e->getMessage());
+            return false;
         }
     }
 

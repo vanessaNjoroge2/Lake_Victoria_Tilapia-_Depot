@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 
+// Include composer autoloader if available to ensure PHPMailer can be found
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
+
 /**
  * NotificationService
  * Handles email and SMS notifications for the application
@@ -57,7 +62,8 @@ class NotificationService
             return true;
         } catch (Exception $e) {
             error_log("Email error: " . $e->getMessage());
-            return false;
+            // Fallback to PHP mail() function
+            return self::sendSimpleEmail($to, $subject, $message);
         }
     }
 
@@ -70,7 +76,8 @@ class NotificationService
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
         $headers .= "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM_EMAIL . ">" . "\r\n";
 
-        return mail($to, $subject, $message, $headers);
+        // Suppress warning if local SMTP is not configured
+        return @mail($to, $subject, $message, $headers);
     }
 
     /**
@@ -98,9 +105,14 @@ class NotificationService
             $data = [
                 'username' => SMS_USERNAME,
                 'to' => $phone,
-                'message' => $message,
-                'from' => SMS_SHORTCODE
+                'message' => $message
             ];
+
+            // In Africa's Talking Sandbox, using a custom sender ID will fail unless registered.
+            // Only add 'from' parameter in production or when not sandbox.
+            if (SMS_ENVIRONMENT !== 'sandbox' && !empty(SMS_SHORTCODE)) {
+                $data['from'] = SMS_SHORTCODE;
+            }
 
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

@@ -88,6 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     $updStmt = $db->prepare($upd);
                                     $updStmt->execute([':ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1', ':id' => $userRow['id']]);
 
+                                    // Clear IP rate limit upon successful credentials check
+                                    $twoFactorController->clearRateLimit('login_attempt_ip');
+
                                     // 4. Trigger Two-Factor Authentication (mandatory for staff/admin, optional for customer if enabled)
                                     if ($twoFactorController->is2faRequired($userRow)) {
                                         $_SESSION['temp_2fa_user_id'] = $userRow['id'];

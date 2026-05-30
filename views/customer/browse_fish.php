@@ -35,7 +35,7 @@ if (isset($_GET['search'])) {
             <form method="GET" class="flex flex-col md:flex-row gap-4">
                 <div class="flex-1">
                     <input type="text" name="search" placeholder="Search fish by name, description, or category..."
-                        value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>"
+                        value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search'] ?? '') : ''; ?>"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
@@ -54,22 +54,22 @@ if (isset($_GET['search'])) {
             <?php foreach ($fish as $item): ?>
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
                     <div class="relative">
-                        <img src="<?php echo BASE_URL . '/uploads/' . ($item['image_url'] ?: 'default_fish.png'); ?>"
-                            alt="<?php echo htmlspecialchars($item['name']); ?>"
+                        <img src="<?php echo BASE_URL . '/uploads/' . (($item['image_url'] ?? '') ?: 'default_fish.png'); ?>"
+                            alt="<?php echo htmlspecialchars($item['name'] ?? ''); ?>"
                             class="w-full h-48 object-cover">
                         <div class="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-sm">
-                            Ksh <?php echo number_format($item['price'], 2); ?>
+                            Ksh <?php echo number_format($item['price'] ?? 0, 2); ?>
                         </div>
                     </div>
 
                     <div class="p-4">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2"><?php echo htmlspecialchars($item['name']); ?></h3>
-                        <p class="text-gray-600 text-sm mb-3"><?php echo htmlspecialchars($item['description']); ?></p>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2"><?php echo htmlspecialchars($item['name'] ?? ''); ?></h3>
+                        <p class="text-gray-600 text-sm mb-3"><?php echo htmlspecialchars($item['description'] ?? ''); ?></p>
 
                         <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
-                            <span><i class="fas fa-weight mr-1"></i><?php echo htmlspecialchars($item['weight_range']); ?></span>
-                            <span class="<?php echo $item['stock_quantity'] > 0 ? 'text-green-600' : 'text-red-600'; ?>">
-                                <i class="fas fa-box mr-1"></i><?php echo $item['stock_quantity'] > 0 ? 'In Stock' : 'Out of Stock'; ?>
+                            <span><i class="fas fa-weight mr-1"></i><?php echo htmlspecialchars($item['weight_range'] ?? ''); ?></span>
+                            <span class="<?php echo ($item['stock_quantity'] ?? 0) > 0 ? 'text-green-600' : 'text-red-600'; ?>">
+                                <i class="fas fa-box mr-1"></i><?php echo ($item['stock_quantity'] ?? 0) > 0 ? 'In Stock' : 'Out of Stock'; ?>
                             </span>
                         </div>
 
@@ -78,14 +78,14 @@ if (isset($_GET['search'])) {
                             <input type="hidden" name="action" value="add">
 
                             <div class="flex-1">
-                                <input type="number" name="quantity" value="1" min="1" max="<?php echo $item['stock_quantity']; ?>"
+                                <input type="number" name="quantity" value="1" min="1" max="<?php echo $item['stock_quantity'] ?? 0; ?>"
                                     class="w-full px-3 py-1 border border-gray-300 rounded text-center"
-                                    <?php echo $item['stock_quantity'] == 0 ? 'disabled' : ''; ?>>
+                                    <?php echo ($item['stock_quantity'] ?? 0) == 0 ? 'disabled' : ''; ?>>
                             </div>
 
                             <button type="submit"
                                 class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-200 flex items-center gap-2"
-                                <?php echo $item['stock_quantity'] == 0 ? 'disabled' : ''; ?>>
+                                <?php echo ($item['stock_quantity'] ?? 0) == 0 ? 'disabled' : ''; ?>>
                                 <i class="fas fa-cart-plus"></i>
                                 <span class="hidden sm:inline">Add to Cart</span>
                             </button>

@@ -7,11 +7,19 @@ class Fish
     // Property declarations
     public $id;
     public $name;
+    public $size;
+    public $type;
+    public $cost_price;
+    public $retail_price;
+    public $wholesale_price;
+    public $price; // legacy
     public $description;
-    public $price;
     public $image_url;
     public $category;
-    public $stock_quantity;
+    public $stock_qty;
+    public $stock_quantity; // legacy
+    public $low_stock_threshold;
+    public $unit;
     public $weight_range;
     public $is_active;
     public $created_at;
@@ -25,19 +33,33 @@ class Fish
     // CREATE - Add new fish
     public function create()
     {
+        // Keep price and retail_price in sync, and stock_qty and stock_quantity in sync
+        $this->price = $this->retail_price;
+        $this->stock_quantity = $this->stock_qty;
+
         $query = "INSERT INTO " . $this->table . " 
-                 SET name=:name, description=:description, price=:price, 
-                     image_url=:image_url, category=:category, stock_quantity=:stock_quantity, 
-                     weight_range=:weight_range, is_active=:is_active";
+                 SET name=:name, size=:size, type=:type, cost_price=:cost_price,
+                     retail_price=:retail_price, wholesale_price=:wholesale_price, price=:price,
+                     description=:description, image_url=:image_url, category=:category, stock_qty=:stock_qty,
+                     stock_quantity=:stock_quantity, low_stock_threshold=:low_stock_threshold,
+                     unit=:unit, weight_range=:weight_range, is_active=:is_active";
 
         $stmt = $this->conn->prepare($query);
 
         $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":description", $this->description);
+        $stmt->bindParam(":size", $this->size);
+        $stmt->bindParam(":type", $this->type);
+        $stmt->bindParam(":cost_price", $this->cost_price);
+        $stmt->bindParam(":retail_price", $this->retail_price);
+        $stmt->bindParam(":wholesale_price", $this->wholesale_price);
         $stmt->bindParam(":price", $this->price);
+        $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":image_url", $this->image_url);
         $stmt->bindParam(":category", $this->category);
+        $stmt->bindParam(":stock_qty", $this->stock_qty);
         $stmt->bindParam(":stock_quantity", $this->stock_quantity);
+        $stmt->bindParam(":low_stock_threshold", $this->low_stock_threshold);
+        $stmt->bindParam(":unit", $this->unit);
         $stmt->bindParam(":weight_range", $this->weight_range);
         $stmt->bindParam(":is_active", $this->is_active);
 
@@ -50,21 +72,35 @@ class Fish
     // UPDATE - Update fish details
     public function update()
     {
+        // Keep price/retail_price and stock_qty/stock_quantity in sync
+        $this->price = $this->retail_price;
+        $this->stock_quantity = $this->stock_qty;
+
         $query = "UPDATE " . $this->table . " 
-                 SET name=:name, description=:description, price=:price, 
-                     image_url=:image_url, category=:category, stock_quantity=:stock_quantity, 
-                     weight_range=:weight_range, is_active=:is_active, 
+                 SET name=:name, size=:size, type=:type, cost_price=:cost_price,
+                     retail_price=:retail_price, wholesale_price=:wholesale_price, price=:price,
+                     description=:description, image_url=:image_url, category=:category, stock_qty=:stock_qty,
+                     stock_quantity=:stock_quantity, low_stock_threshold=:low_stock_threshold,
+                     unit=:unit, weight_range=:weight_range, is_active=:is_active, 
                      updated_at = CURRENT_TIMESTAMP 
                  WHERE id=:id";
 
         $stmt = $this->conn->prepare($query);
 
         $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":description", $this->description);
+        $stmt->bindParam(":size", $this->size);
+        $stmt->bindParam(":type", $this->type);
+        $stmt->bindParam(":cost_price", $this->cost_price);
+        $stmt->bindParam(":retail_price", $this->retail_price);
+        $stmt->bindParam(":wholesale_price", $this->wholesale_price);
         $stmt->bindParam(":price", $this->price);
+        $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":image_url", $this->image_url);
         $stmt->bindParam(":category", $this->category);
+        $stmt->bindParam(":stock_qty", $this->stock_qty);
         $stmt->bindParam(":stock_quantity", $this->stock_quantity);
+        $stmt->bindParam(":low_stock_threshold", $this->low_stock_threshold);
+        $stmt->bindParam(":unit", $this->unit);
         $stmt->bindParam(":weight_range", $this->weight_range);
         $stmt->bindParam(":is_active", $this->is_active);
         $stmt->bindParam(":id", $this->id);
@@ -127,7 +163,11 @@ class Fish
     // UPDATE STOCK - Update fish stock quantity (for orders)
     public function updateStock($id, $quantity)
     {
-        $query = "UPDATE " . $this->table . " SET stock_quantity = stock_quantity - :quantity WHERE id = :id";
+        // Deduct from both stock_qty and stock_quantity under transaction
+        $query = "UPDATE " . $this->table . " 
+                  SET stock_qty = stock_qty - :quantity, 
+                      stock_quantity = stock_quantity - :quantity 
+                  WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":quantity", $quantity);
         $stmt->bindParam(":id", $id);
@@ -137,7 +177,7 @@ class Fish
     // GET LOW STOCK - Get items with low stock
     public function getLowStockItems()
     {
-        $query = "SELECT * FROM " . $this->table . " WHERE stock_quantity < 10 AND is_active = 1";
+        $query = "SELECT * FROM " . $this->table . " WHERE (stock_qty < low_stock_threshold OR stock_quantity < 10) AND is_active = 1";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -58,22 +58,30 @@ class MpesaController
         curl_setopt($curl, CURLOPT_HEADER, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 
         $curl_response = curl_exec($curl);
+        $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $curl_errno = curl_errno($curl);
+        $curl_error = curl_error($curl);
+        curl_close($curl);
 
-        if (curl_errno($curl)) {
-            error_log("MPESA Token cURL Error: " . curl_error($curl));
+        if ($curl_errno) {
+            error_log("MPESA Token cURL Error [" . $curl_errno . "]: " . $curl_error);
             return null;
         }
-        $response = json_decode($curl_response);
+
+        $response = json_decode($curl_response, true);
 
         // Log detailed error if token retrieval fails
-        if (!isset($response->access_token)) {
-            error_log("MPESA Token Response Error: " . $curl_response);
-            error_log("MPESA Token Response decoded: " . print_r($response, true));
+        if ($http_code !== 200 || !isset($response['access_token'])) {
+            error_log("MPESA Token Retrieval Failed (HTTP Code: {$http_code})");
+            error_log("MPESA Token Raw Response: " . $curl_response);
+            error_log("MPESA Credentials hash prefix: " . substr($credentials, 0, 10) . "...");
+            return null;
         }
 
-        return $response->access_token ?? null;
+        return $response['access_token'];
     }
 
     // Initiate STK Push

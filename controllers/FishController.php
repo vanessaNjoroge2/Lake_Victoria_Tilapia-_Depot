@@ -91,11 +91,19 @@ class FishController
     {
         try {
             $this->fish->name = $data['name'];
+            $this->fish->size = $data['size'] ?? 'Size 1';
+            $this->fish->type = $data['type'] ?? 'raw';
+            $this->fish->cost_price = floatval($data['cost_price'] ?? 0);
+            $this->fish->retail_price = floatval($data['retail_price'] ?? $data['price'] ?? 0);
+            $this->fish->wholesale_price = floatval($data['wholesale_price'] ?? ($data['retail_price'] ?? $data['price'] ?? 0) * 0.90);
+            $this->fish->price = floatval($data['retail_price'] ?? $data['price'] ?? 0); // legacy
             $this->fish->description = $data['description'];
-            $this->fish->price = $data['price'];
             $this->fish->image_url = $data['image_url'] ?? 'default_fish.png';
             $this->fish->category = $data['category'] ?? 'Tilapia';
-            $this->fish->stock_quantity = $data['stock_quantity'];
+            $this->fish->stock_qty = intval($data['stock_qty'] ?? $data['stock_quantity'] ?? 0);
+            $this->fish->stock_quantity = intval($data['stock_qty'] ?? $data['stock_quantity'] ?? 0); // legacy
+            $this->fish->low_stock_threshold = intval($data['low_stock_threshold'] ?? 10);
+            $this->fish->unit = $data['unit'] ?? 'piece';
             $this->fish->weight_range = $data['weight_range'];
             $this->fish->is_active = $data['is_active'] ?? 1;
 
@@ -111,11 +119,19 @@ class FishController
         try {
             $this->fish->id = $id;
             $this->fish->name = $data['name'];
+            $this->fish->size = $data['size'] ?? 'Size 1';
+            $this->fish->type = $data['type'] ?? 'raw';
+            $this->fish->cost_price = floatval($data['cost_price'] ?? 0);
+            $this->fish->retail_price = floatval($data['retail_price'] ?? $data['price'] ?? 0);
+            $this->fish->wholesale_price = floatval($data['wholesale_price'] ?? ($data['retail_price'] ?? $data['price'] ?? 0) * 0.90);
+            $this->fish->price = floatval($data['retail_price'] ?? $data['price'] ?? 0); // legacy
             $this->fish->description = $data['description'];
-            $this->fish->price = $data['price'];
             $this->fish->image_url = $data['image_url'];
             $this->fish->category = $data['category'];
-            $this->fish->stock_quantity = $data['stock_quantity'];
+            $this->fish->stock_qty = intval($data['stock_qty'] ?? $data['stock_quantity'] ?? 0);
+            $this->fish->stock_quantity = intval($data['stock_qty'] ?? $data['stock_quantity'] ?? 0); // legacy
+            $this->fish->low_stock_threshold = intval($data['low_stock_threshold'] ?? 10);
+            $this->fish->unit = $data['unit'] ?? 'piece';
             $this->fish->weight_range = $data['weight_range'];
             $this->fish->is_active = $data['is_active'];
 
